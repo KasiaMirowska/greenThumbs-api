@@ -1,30 +1,30 @@
+const axios = require('axios')
 
-const express = require('express');
-const app = express();
-const http = require('http');
 
-function onRequest(client_req, client_res) {
-    console.log('serve:' + client_req.url)
-
-    const options = {
-        hostname: ' https://api.yelp.com/v3/businesses/search?term=food&location=danvers',
-        port: 80,
-        path: client_req.url,
-        method: client_req.method,
-        headers: client_req.headers
-    };
-
-    var proxy = http.request(options, function (res) {
-        client_res.writeHead(res.statusCode, res.headers)
-        res.pipe(client_res, {
-            end: true
+module.exports = (req, res) => {
+    console.log('GETTING HERE???????')
+  const headers = {
+    "Access-Control-Allow-Headers": "Content-Type, Accept",
+    'Access-Control-Allow-Origin': "*",
+    'Access-Control-Allow-Methods': "GET,HEAD"
+  };
+  axios({
+    method: 'get',
+    url: 'https://api.yelp.com/v3/businesses/search?',
+    headers: {
+      'Authorization': 'bearer 1tfAV3b5KfUH3KiLwe1QijAOWvXaHKRhdUC04jlCt9nWMg-ZjenkkvwU-5_O-GSJ5_k6sMarkh0RPO8e01kNrQcuTgHtr7LHyeQeSWzcmT9Xgfs9XLt3rk62boE4XnYx',
+    },
+    responseType: 'stream'
+  })
+    .then(response => {
+      if (response.status === 200) {
+        res.writeHead(200, {
+          ...headers, 'Content-Type': response.headers['content-type']
         });
-    });
-
-    client_req.pipe(proxy, {
-        end: true
-    });
-}
-
-module.exports = onRequest()
-
+        response.data.pipe(res);
+      } else {
+        res.writeHead(response.status);
+        res.end();
+      }
+    })
+};

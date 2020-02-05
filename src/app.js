@@ -6,36 +6,16 @@ const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
 const app = express();
 const morganOption = (NODE_ENV === 'production') ? 'tiny' : 'common';
-const http = require('http');
+const proxy = require('./proxy');
+
+
 app.use(morgan(morganOption));
 app.use(helmet());
 app.use(cors());
-
+app.use('/api.yelp.com/v3/businesses/search?', proxy)
 
 app.get('/', (req, res) => {
-    console.log(req.url)
-    console.log( req.headers, 'HEADERS')
-   
-    const options = {
-        hostname: ' https://api.yelp.com/v3/businesses/search?term=food&location=danvers',
-        port: 80,
-        path: req.url,
-        method: req.method,
-        headers: req.headers
-    };
-
-    const proxy = http.request(options, function (res) {
-        res.writeHead(res.statusCode, res.headers)
-        res.pipe(res, {
-            end: true
-        });
-    });
-
-    req.pipe(proxy, {
-        end: true
-    });
-
-    res.json(res.pipe(res))
+    res.json('hello from green thumbs up!')
 });
 
 app.use(function errorHandler(error, req, res, next) {
