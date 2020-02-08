@@ -12,7 +12,7 @@ const proxy = require('./proxy');
 app.use(morgan(morganOption));
 app.use(helmet());
 app.use(cors());
-app.use('/api.yelp.com/v3/businesses/search?', proxy)
+app.use(proxy)
 
 app.get('/', (req, res) => {
     res.json('hello from green thumbs up!')
