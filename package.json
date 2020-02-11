@@ -6,7 +6,9 @@
   "scripts": {
     "test": "mocha --require test/setup.js",
     "dev": "nodemon src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "migrate":"postgrator --config postgrator-config.js",
+    "migrate:test": "env NODE_ENV = test npm run migrate"
   },
   "keywords": [],
   "author": "kasia",
@@ -25,6 +27,7 @@
     "chai": "^4.2.0",
     "mocha": "^6.2.2",
     "nodemon": "^1.19.4",
+    "postgrator-cli": "^3.2.0",
     "supertest": "^4.0.2"
   }
 }
