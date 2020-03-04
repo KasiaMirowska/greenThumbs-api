@@ -6,13 +6,14 @@ CREATE TABLE place (
     name TEXT NOT NULL,
     img_url TEXT,
     url TEXT,
-    yelpRating INTEGER,
+    yelpRating NUMERIC(2),
     location_str TEXT NOT NULL,
     location_city TEXT NOT NULL,
     location_zip TEXT NOT NULL,
     location_st TEXT NOT NULL,
     phone VARCHAR(22),
-    userId INTEGER REFERENCES user(id) ON DELETE SET NOT NULL,
+    displayPhone TEXT,
+    userId INTEGER REFERENCES users(id) ON DELETE SET NULL,
     green_reviews_count INTEGER
 );
 
