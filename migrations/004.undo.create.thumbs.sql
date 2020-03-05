@@ -1,2 +1,1 @@
 DROP TABLE IF EXISTS thumbText;
-DROP TABLE IF EXISTS thumbChecked;

@@ -7,12 +7,13 @@ const { NODE_ENV } = require('./config');
 const app = express();
 const morganOption = (NODE_ENV === 'production') ? 'tiny' : 'common';
 const proxy = require('./proxy');
-
+const authRouter = require('./auth/auth-router');
 
 app.use(morgan(morganOption));
 app.use(helmet());
 app.use(cors());
 app.use(proxy)
+app.use(authRouter);
 
 app.get('/', (req, res) => {
     res.json('hello from green thumbs up!')
