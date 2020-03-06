@@ -1,7 +1,9 @@
 const axios = require('axios')
+const express = require('express');
+const proxyRouter = express.Router();
 
-
-module.exports = (req, res) => {
+proxyRouter
+.get('/', (req, res) => {
     const { term, location } = req.query;
     console.log(term, location, 'WORKING?????')
 
@@ -30,4 +32,6 @@ module.exports = (req, res) => {
             }
         })
         .catch(res.error)
-};
+});
+
+module.exports = proxyRouter;
