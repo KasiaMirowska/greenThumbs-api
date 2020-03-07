@@ -9,6 +9,7 @@ const morganOption = (NODE_ENV === 'production') ? 'tiny' : 'common';
 const proxyRouter = require('./proxy');
 const authRouter = require('./auth/auth-router');
 const userRouter = require('./users/user-router');
+const placesRouter = require('./places/places-router');
 
 
 app.use(morgan(morganOption));
@@ -18,6 +19,7 @@ app.use(cors());
 app.use(proxyRouter);
 app.use(authRouter);
 app.use(userRouter);
+app.use(placesRouter);
 
 app.get('/', (req, res) => {
     res.json('hello from green thumbs up!')

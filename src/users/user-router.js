@@ -6,15 +6,13 @@ const path = require('path');
 
 userRouter
 .post('/api/register', jsonBodyParser, (req,res,next) => {
-    console.log(req.body, 'USER ROUTER!')
-    for(const field of ['fullname', 'username',' password']) {
-        console.log(field, '????????????', req.body[field])
+    for (const field of ['fullname', 'username', 'password']) {
         if(!req.body[field]) {
             return res.status(400).json({error: {message: `Missing ${field}`}})
         }
     }
 
-    const {fullname, address_city, address_state, username, password} = req.body;
+    const {fullname, username, password} = req.body;
     const passwordError = UserService.validatePassword(password);
    
     if(passwordError) {
