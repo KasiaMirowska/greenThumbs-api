@@ -19,6 +19,7 @@ const AuthService = {
         })
     },
     verifyJWT(token) {
+        console.log(token, 'TTTTTTTTT')
         return jwt.verify(token, config.JWT_SECRET, {algorithms: ['HS256']})
     },
 }

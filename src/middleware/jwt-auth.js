@@ -11,8 +11,9 @@ function requireAuth(req,res,next) {
     }
 
     try{
-        const payload = AuthService.verifyJwt(bearerToken)
+        const payload = AuthService.verifyJWT(bearerToken)
         const knexInstance = req.app.get('db');
+
         AuthService.getUserWithUserName(knexInstance, payload.sub)
         .then(user => {
             if(!user) {

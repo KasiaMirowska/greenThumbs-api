@@ -10,7 +10,7 @@ const proxyRouter = require('./proxy');
 const authRouter = require('./auth/auth-router');
 const userRouter = require('./users/user-router');
 const placesRouter = require('./places/places-router');
-
+const reviewsRouter = require('./reviews/reviews-router');
 
 app.use(morgan(morganOption));
 app.use(helmet());
@@ -20,9 +20,10 @@ app.use(proxyRouter);
 app.use(authRouter);
 app.use(userRouter);
 app.use(placesRouter);
+app.use(reviewsRouter);
 
 app.get('/', (req, res) => {
-    res.json('hello from green thumbs up!')
+    res.send('hello from green-thumbs-up!')
 });
 
 app.use(function errorHandler(error, req, res, next) {
