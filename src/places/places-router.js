@@ -137,4 +137,9 @@ placesRouter
         console.log(res.userPlacesReviewed, 'HERE FINALLY??????')
         res.status(200).json(res.userPlacesReviewed)
     })
+
+
+    // placesRouter //patching just place info (without review)
+    // .route('/api/:user_id/: place_id')
+    // .
 module.exports = placesRouter;

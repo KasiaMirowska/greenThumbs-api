@@ -4,6 +4,7 @@ const jsonBodyParser = express.json();
 const PlacesService = require('../places/places-service');
 const ReviewsService = require('../reviews/reviews-service');
 const { requireAuth } = require('../middleware/jwt-auth');
+const path = require('path');
 
 reviewsRouter
 .route('/api/:user_id/review')
@@ -46,6 +47,10 @@ reviewsRouter
             review,
         };
         let savedReview = await ReviewsService.insertNewReview(knexInstance, newReview)
+        // let updatedPlace = {
+        //     ...savedPlace,
+        //     green_reviews_count: green_reviews_count + 1,
+        // }
         console.log(savedReview);
 
         checkedThumbs.forEach(el => {
@@ -62,6 +67,9 @@ reviewsRouter
             
         })
 
+        
+        console.log({newGreenPlace, newReview, checkedThumbs}, "RETURNING TO CLIENT")
+        return res.json(201).json({newGreenPlace, newReview, checkedThumbs}).location(path.posix.join(req.originalUrl, `/${newPlace.id}`))
 
 
     } catch(err) {

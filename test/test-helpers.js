@@ -7,37 +7,47 @@ function cleanTables(db) {
     return db.raw(
         `TRUNCATE
             users,
-            place
+            place,
+            review,
+            thumbText,
+            thumbChecked,
+            folder
             RESTART IDENTITY CASCADE`
     )
 }
 
 function seedGreenPlaces(db, users, places, reviews, thumbText, thumbChecked) {
+    //console.log(db, 'DBBBBBBEEEE')
     return db
         .into('users')
         .insert(users)
         .then(() => {
-            db
-                .into('place')
-                .insert(places)
-                .then(() => {
-                    db
-                        .into('review')
-                        .insert(reviews)
-                        .then(() => {
-                            db
-                                .into('thumbText')
-                                .insert(thumbText)
-                                .then(() => {
-                                    db
-                                        .into('thumbChecked')
-                                        .insert(thumbChecked)
-                                        .then(() => {
+            db.from('users').select('*')
+             .then((users) => {
+                 console.log(users, 'UEEEEEEE')
+            //     return db
+            //     .into('place')
+            //     .insert(places)
+            //     .then(() => {
+            //         return db
+            //             .into('review')
+            //             .insert(reviews)
+            //             .then(() => {
+            //                 return db
+            //                     .into('thumbText')
+            //                     .insert(thumbText)
+            //                     .then(() => {
+            //                         return db
+            //                             .into('thumbChecked')
+            //                             .insert(thumbChecked)
+            //                             .then(() => {
 
-                                        })
-                                })
-                        })
-                })
+            //                             })
+            //                     })
+            //             })
+            //     })
+             })
+            
         })
 }
 
@@ -47,15 +57,14 @@ function makeExpectedPlace(users, places, reviews, thumbText, thumbChecked) {
        
         let filteredReviews = reviews.filter(rev => rev.placeId === places[i].id)
        
-        let finalFilteredReviews = [...filteredReviews]
         console.log(filteredReviews, 'Final???????')
         let reviewText = {};
         let reviewDate = {};
         let reviewCheckedThumbs = {}
 
         finalFilteredReviews.forEach(rev => {
-            reviewText[rev.review] = true;
-            reviewDate[rev.date] = true;
+            // reviewText[rev.review] = true;
+            // reviewDate[rev.date] = true;
             reviewCheckedThumbs[rev.description] = true;
         });
 
@@ -71,13 +80,13 @@ function makeExpectedPlace(users, places, reviews, thumbText, thumbChecked) {
             location_zip: places[i].location_zip,
             location_st: places[i].location_st,
             phone: places[i].phone,
-            displayPhone: places[i].phone,
+            displayphone: places[i].phone,
             userId: places[i].userId,
             folderId: places[i].folderId,
             green_reviews_count: places[i].green_reviews_count,
-            review: Object.keys(reviewText),
-            reviewDate: Object.keys(reviewDate),
-            checkedThumbs: Object.keys(reviewCheckedThumbs)
+            review: filteredReviews.map(rev => rev.review),
+            reviewDate:filteredReviews.map(rev => rev.date),
+            checkedthumbs: Object.keys(reviewCheckedThumbs)
         })
     }
     console.log(greenPlacesList)
