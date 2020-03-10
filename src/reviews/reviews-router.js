@@ -20,7 +20,6 @@ reviewsRouter
             }
         }
         //checkedThumbs is an array of numbers referring to ids of thumb text
-        let newThumbChecked
         // need to save place first, then review so db assigns placeId and reviewId, then call db to get those ids and create thumbChecked obj with them
         let newGreenPlace = {
             yelpid: yelpId,
@@ -47,11 +46,7 @@ reviewsRouter
             review,
         };
         let savedReview = await ReviewsService.insertNewReview(knexInstance, newReview)
-        // let updatedPlace = {
-        //     ...savedPlace,
-        //     green_reviews_count: green_reviews_count + 1,
-        // }
-        console.log(savedReview);
+
 
         checkedThumbs.forEach(el => {
             let newCheckedThumb = {
@@ -69,14 +64,39 @@ reviewsRouter
 
         
         console.log({newGreenPlace, newReview, checkedThumbs}, "RETURNING TO CLIENT")
-        return res.json(201).json({newGreenPlace, newReview, checkedThumbs}).location(path.posix.join(req.originalUrl, `/${newPlace.id}`))
+        console.log(req.originalUrl, `/${savedPlace.id}`)
+        return res.json(201).json({newGreenPlace, newReview, checkedThumbs}).location(path.posix.join(req.originalUrl, `/${savedPlace.id}`))
 
 
     } catch(err) {
         next(err)
     }
-   
-    
+})
+
+reviewsRouter
+.route('/api/:user_id/review/:green_place_id')
+.delete((req,res,next) => {
+    const knexInstance = req.app.get('db');
+    const userId = req.params.user_id;
+    const placeToRemove = req.params.green_place_id ;
+    //should I get by id first to make sure that if place does not exist I have an if statement????
+    PlacesService.deleteReviewedPlace(knexInstance, userId, placeToRemove)
+    .then(() => {
+      //delete the rest of info
+      ReviewsService.deleteReview(knexInstance, userId, placeToRemove)
+      .then(() => {
+          console.log('DONE????')
+          return res.status(204).send('reviewed place deleted')
+        //   ReviewsService.deleteCheckedThumb(knexInstance, userId, placeToRemove)
+        //   .then(() => {
+        //       return res.status(204).json('reviewed place deleted')
+        //   })
+        //   .catch(next)
+      })
+      //return res.status(204).send('reviewed place deleted')
+      .catch(next)
+    })
+    .catch(next)
 })
 
 
