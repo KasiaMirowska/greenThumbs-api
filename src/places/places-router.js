@@ -12,7 +12,7 @@ placesRouter // gets all green thumb reviewed places with full info
             res.placesReviewed = [];
             const knexInstance = req.app.get('db')
             const places = await PlacesService.getAllGreenPlaces(knexInstance);
-
+           
             for (let i = 0; i < places.length; i++) {
                 const reviews = await ReviewsService.getAllReviews(knexInstance, places[i].id);
                 if (reviews) {
@@ -29,8 +29,8 @@ placesRouter // gets all green thumb reviewed places with full info
                     const {
                         id, yelpid, name, img_url, url, yelprating,
                         location_str, location_city, location_zip,
-                        location_st, phone, displayPhone, userId,
-                        folderId, greenReviewsCount
+                        location_st, phone, displayphone, userid,
+                        folderid, green_reviews_count
                     } = places[i];
 
                     res.placesReviewed.push({
@@ -45,15 +45,16 @@ placesRouter // gets all green thumb reviewed places with full info
                         location_zip,
                         location_st,
                         phone,
-                        displayPhone,
-                        userId,
-                        folderId,
-                        greenReviewsCount,
+                        displayphone,
+                        userid,
+                        folderid,
+                        green_reviews_count,
                         review: Object.keys(reviewText),
                         reviewDate: Object.keys(reviewDate),
                         checkedThumbs: Object.keys(reviewCheckedThumbs)
                     });
                 };
+                
             };
             next();
         } catch (err) {
@@ -67,13 +68,14 @@ placesRouter // gets all green thumb reviewed places with full info
 
 placesRouter
     //gets green reviewd places by user with full info
-    .route('/api/user/:user_id')
+    .route('/api/user/')
     .all(requireAuth)
     .all(async (req, res, next) => {
 
         try {
             const knexInstance = req.app.get('db');
-            const user_id = Number(req.params.user_id);
+            const user_id = Number(req.user.id);
+            console.log(req.user , user_id, 'USER????????')
             res.userPlacesReviewed = [];
             const userPlaces = await PlacesService.getAllGreenPlacesByUser(knexInstance, user_id)
 
@@ -94,8 +96,8 @@ placesRouter
                         const {
                             id, yelpid, name, img_url, url, yelprating,
                             location_str, location_city, location_zip,
-                            location_st, phone, displayPhone, userId,
-                            folderId, greenReviewsCount
+                            location_st, phone, displayphone, userid,
+                            folderid, green_reviews_count
                         } = userPlaces[i];
 
                         res.userPlacesReviewed.push({
@@ -110,16 +112,16 @@ placesRouter
                             location_zip,
                             location_st,
                             phone,
-                            displayPhone,
-                            userId,
-                            folderId,
-                            greenReviewsCount,
+                            displayphone,
+                            userid,
+                            folderid,
+                            green_reviews_count,
                             review: Object.keys(reviewText),
                             reviewDate: Object.keys(reviewDate),
                             checkedThumbs: Object.keys(reviewCheckedThumbs)
                         });
 
-                        console.log(res.userPlacesReviewed, 'HERE??????')
+                        //console.log(res.userPlacesReviewed, 'HERE??????')
                     };
                 };
             } else {
@@ -137,17 +139,20 @@ placesRouter
 
 placesRouter //gets by id reviewed place with full info
     .route('/api/place/:place_id')
+    .all(requireAuth)
     .all((req, res, next) => {
         const knexInstance = req.app.get('db');
-        const { place_id } = req.params;
-        PlacesService.getPlaceById(knexInstance, place_id)
+        const user_id = req.user.id
+        const place_id  = req.params.place_id;
+        console.log(req.params, user_id, place_id, 'INFO>')
+        PlacesService.getPlaceById(knexInstance, user_id, place_id)
             .then(place => {
                 if (!place) {
-                    return res.status(404).send({ error: { message: `Place with id ${place_id} doesn't exist` } })
+                    return res.status(404).json({ error: { message: `User with id ${user_id} did not review place with id ${place_id}` } })
                 }
                 res.place = place
                 
-                ReviewsService.getReviewByPlaceId(knexInstance, place_id)
+                ReviewsService.getReviewByPlaceId(knexInstance, user_id, place_id)
                     .then(reviews => {
 
                         if (reviews) {
