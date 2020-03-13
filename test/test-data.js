@@ -6,19 +6,19 @@ makeTestUsers = () => {
             id: 1,
             fullname: 'full name1',
             username: 'username1',
-            password: '!@123Abc',
+            password: '!@123Abcd',
         },
         {
             id: 2,
             fullname: 'full name2',
             username: 'username2',
-            password: '!@123Abc',
+            password: '!@123Abcd',
         },
         {
             id: 3,
             fullname: 'full name3',
             username: 'username3',
-            password: '!@123Abc',
+            password: '!@123Abcd',
         }
     ]
 }

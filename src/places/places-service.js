@@ -22,15 +22,16 @@ const PlacesService = {
     },
 
     updateGreenPlace: (knex,userId, placeId, updatedFields) => {
-        return knex.into('place').where({userid: userId, id: placeId}).update(updatedFields)
+        return knex('place').where({userid: userId, id: placeId}).update(updatedFields).returning('*')
         .then((rows) => {
             console.log(rows, '>>>>>>?//rows after update?')
-            return rows[0];
+            return rows; //update returns number of updated rows
         })
     },
 
     deleteReviewedPlace: (knex, userId, place_id) => {
-        return knex.from('place').select('*').where({userid: userId, id: place_id}).delete()
+        console.log(userId, place_id)
+        return knex.from('place').select('*').where({userid: userId, id: place_id}).del()
         .then((rows) => {
             console.log(rows,'???????>>>3333333//////?????????')
         } )
