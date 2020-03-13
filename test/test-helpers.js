@@ -41,13 +41,26 @@ function seedGreenPlaces(db, users, places, reviews, thumbText, thumbChecked) {
             //                             .into('thumbChecked')
             //                             .insert(thumbChecked)
             //                             .then(() => {
-
+            //                                  console.log('populated db')
             //                             })
             //                     })
             //             })
             //     })
              })
             
+        })
+}
+
+function seedUsers(db, users) {
+    const preppedUsers = users.map(user => ({
+        ...user,
+        password: bcrypt.hashSync(user.password, 1)
+    }));
+    return db
+        .into('users')
+        .insert(preppedUsers)
+        .then(() => {
+            console.log('users populated')
         })
 }
 
@@ -94,8 +107,19 @@ function makeExpectedPlace(users, places, reviews, thumbText, thumbChecked) {
 
 }
 
+function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
+    const token = jwt.sign({ user_id: user.id }, secret, {
+        subject: user.username,
+        algorithm: 'HS256'
+    })
+    return `Bearer ${token}`
+}
+
 module.exports = {
     cleanTables,
     seedGreenPlaces,
+    seedUsers,
     makeExpectedPlace,
+    makeAuthHeader,
+    
 }

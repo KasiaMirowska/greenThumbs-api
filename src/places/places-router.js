@@ -19,7 +19,7 @@ placesRouter // gets all green thumb reviewed places with full info
                     let reviewText = {};
                     let reviewDate = {};
                     let reviewCheckedThumbs = {}
-
+                    console.log(reviews, 'REVIEWS')
                     reviews.forEach(rev => {
                         reviewText[rev.review] = true;
                         reviewDate[rev.date] = true;
@@ -67,7 +67,7 @@ placesRouter // gets all green thumb reviewed places with full info
 
 
 placesRouter
-    //gets green reviewd places by user with full info
+    //gets green reviewed places by user with full info
     .route('/api/user/')
     .all(requireAuth)
     .all(async (req, res, next) => {
@@ -75,7 +75,7 @@ placesRouter
         try {
             const knexInstance = req.app.get('db');
             const user_id = Number(req.user.id);
-            console.log(req.user , user_id, 'USER????????')
+           console.log(user_id, 'TESTING USER???????')
             res.userPlacesReviewed = [];
             const userPlaces = await PlacesService.getAllGreenPlacesByUser(knexInstance, user_id)
 
@@ -144,7 +144,7 @@ placesRouter //gets by id reviewed place with full info
         const knexInstance = req.app.get('db');
         const user_id = req.user.id
         const place_id  = req.params.place_id;
-        console.log(req.params, user_id, place_id, 'INFO>')
+        
         PlacesService.getPlaceById(knexInstance, user_id, place_id)
             .then(place => {
                 if (!place) {
