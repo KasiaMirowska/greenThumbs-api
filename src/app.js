@@ -26,6 +26,7 @@ app.get('/', (req, res) => {
     res.send('hello from green-thumbs-up!')
 });
 
+
 app.use(function errorHandler(error, req, res, next) {
     let response;
     if (NODE_ENV === 'production') {
