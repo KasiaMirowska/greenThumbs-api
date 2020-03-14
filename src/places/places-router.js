@@ -27,27 +27,25 @@ placesRouter // gets all green thumb reviewed places with full info
                     });
 
                     const {
-                        id, yelpid, name, img_url, url, yelprating,
+                        id, yelp_id, name, img_url, url, yelp_rating,
                         location_str, location_city, location_zip,
-                        location_st, phone, displayphone, userid,
-                        folderid, green_reviews_count
+                        location_st, display_phone, userid, green_reviews_count, category,
                     } = places[i];
 
                     res.placesReviewed.push({
                         id,
-                        yelpId: yelpid,
+                        yelp_id,
                         name,
                         img: img_url,
                         url,
-                        yelprating,
+                        yelp_rating,
                         location_str,
                         location_city,
                         location_zip,
                         location_st,
-                        phone,
-                        displayphone,
+                        display_phone,
                         userid,
-                        folderid,
+                        category,
                         green_reviews_count,
                         review: Object.keys(reviewText),
                         reviewDate: Object.keys(reviewDate),
@@ -94,27 +92,25 @@ placesRouter
                         });
 
                         const {
-                            id, yelpid, name, img_url, url, yelprating,
+                            id, yelp_id, name, img_url, url, yelp_rating,
                             location_str, location_city, location_zip,
-                            location_st, phone, displayphone, userid,
-                            folderid, green_reviews_count
+                            location_st, display_phone, userid, green_reviews_count, category,
                         } = userPlaces[i];
 
                         res.userPlacesReviewed.push({
                             id,
-                            yelpId: yelpid,
+                            yelp_id,
                             name,
                             img: img_url,
                             url,
-                            yelprating,
+                            yelp_rating,
                             location_str,
                             location_city,
                             location_zip,
                             location_st,
-                            phone,
-                            displayphone,
+                            display_phone,
                             userid,
-                            folderid,
+                            category,
                             green_reviews_count,
                             review: Object.keys(reviewText),
                             reviewDate: Object.keys(reviewDate),

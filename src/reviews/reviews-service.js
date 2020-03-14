@@ -6,7 +6,7 @@ const ReviewsService = {
             .select(
                 'rev.id',
                 'rev.userid',
-                'rev.placeid',
+                'rev.place_id',
                 'rev.review',
                 'rev.date',
                 'thc.thumb',
@@ -14,8 +14,8 @@ const ReviewsService = {
             )
             .join(
                 'thumbchecked AS thc',
-                'rev.placeid',
-                'thc.placeid'
+                'rev.place_id',
+                'thc.place_id'
             )
             .join(
                 'thumbtext AS th',
@@ -23,7 +23,7 @@ const ReviewsService = {
                 'th.id'
             )
             .where(
-                { 'rev.placeid': placeId }
+                { 'rev.place_id': placeId }
             )
 
     },
@@ -34,7 +34,7 @@ const ReviewsService = {
             .select(
                 'rev.id',
                 'rev.userid',
-                'rev.placeid',
+                'rev.place_id',
                 'rev.review',
                 'rev.date',
                 'thc.thumb',
@@ -42,8 +42,8 @@ const ReviewsService = {
             )
             .join(
                 'thumbchecked AS thc',
-                'rev.placeid',
-                'thc.placeid'
+                'rev.place_id',
+                'thc.place_id'
             )
             .join(
                 'thumbtext AS th',
@@ -53,7 +53,7 @@ const ReviewsService = {
             .where(
                 {
                     'rev.userid': userId,
-                    'rev.placeid': placeId,
+                    'rev.place_id': placeId,
                 }
             )
     },
@@ -64,7 +64,7 @@ const ReviewsService = {
             .select(
                 'rev.id',
                 'rev.userid',
-                'rev.placeid',
+                'rev.place_id',
                 'rev.review',
                 'rev.date',
                 'thc.thumb',
@@ -72,8 +72,8 @@ const ReviewsService = {
             )
             .join(
                 'thumbchecked AS thc',
-                'rev.placeid',
-                'thc.placeid'
+                'rev.place_id',
+                'thc.place_id'
             )
             .join(
                 'thumbtext AS th',
@@ -83,7 +83,7 @@ const ReviewsService = {
             .where(
                 {
                     'rev.userid': userId,
-                    'rev.placeid': placeId,
+                    'rev.place_id': placeId,
                 }
             )
 
@@ -107,14 +107,14 @@ const ReviewsService = {
 
     updateReview: (knex, userId, placeId, updatedFields) => {
         //console.log(updatedFields, 'HERE???>>>>>>>>>')
-        return knex('review').where({ userid: userId, placeid: placeId }).update(updatedFields).returning('*')
+        return knex('review').where({ userid: userId, place_id: placeId }).update(updatedFields).returning('*')
             .then(rows => {
                 return rows[0];
             })
     },
 
     updateThumbChecked: (knex, userId, placeId, updatedList) => {
-        return knex.into('thumbchecked').where({ userid: userId, placeid: placeId }).del()
+        return knex.into('thumbchecked').where({ userid: userId, place_id: placeId }).del()
             .then(() => {
                 return knex.into('thumbchecked').insert(updatedList).returning('*')
             })
@@ -124,14 +124,14 @@ const ReviewsService = {
     },
 
     deleteReview: (knex, userId, placeToRemove) => {
-        return knex.from('review').select('*').where({ userid: userId, placeid: placeToRemove }).del()
+        return knex.from('review').select('*').where({ userid: userId, place_id: placeToRemove }).del()
             .then((rows) => {
                 console.log(rows, '???????.........222222222>>>>?????????')
             })
     },
 
     deleteCheckedThumb: (knex, userId, placeToRemove) => {
-        return knex.from('thumbchecked').select('*').where({ userid: userId, placeid: placeToRemove }).del()
+        return knex.from('thumbchecked').select('*').where({ userid: userId, place_id: placeToRemove }).del()
             .then((rows) => {
                 console.log(rows, '???????>>>>>>>?????????')
             })

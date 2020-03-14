@@ -68,7 +68,7 @@ function makeExpectedPlace(users, places, reviews, thumbText, thumbChecked) {
     let greenPlacesList = [];
     for (let i = 0; i < places.length; i++) {
        
-        let filteredReviews = reviews.filter(rev => rev.placeId === places[i].id)
+        let filteredReviews = reviews.filter(rev => rev.place_Id === places[i].id)
        
         console.log(filteredReviews, 'Final???????')
         let reviewText = {};

@@ -14,19 +14,20 @@ const PlacesService = {
         return knex.from('place').select('*').where({'id': place_id, userid: user_id}).first()
     },
 
-    insertNewPlace: (knex, newPlace) =>{
+    insertNewPlace: (knex, newPlace) => {
         return knex.into('place').insert(newPlace).returning('*')
         .then((rows) => {
             return rows[0]
         })
     },
 
-    updateGreenPlace: (knex,userId, placeId, updatedFields) => {
-        return knex('place').where({userid: userId, id: placeId}).update(updatedFields).returning('*')
-        .then((rows) => {
-            console.log(rows, '>>>>>>?//rows after update?')
-            return rows; //update returns number of updated rows
-        })
+    updateGreenPlace: (knex, userId, placeId, updatedFields) => {
+        // console.log(updatedFields, "IN SERVICE", userId, 'l',placeId, "PL" )
+        return knex.into('place').where({userid: userId, id: placeId}).update(updatedFields)
+        // .then((rows) => {
+        //     console.log(rows, '>>>>>>?//rows after update?')
+        //     return rows; //update returns a number of updated rows
+        // })
     },
 
     deleteReviewedPlace: (knex, userId, place_id) => {
