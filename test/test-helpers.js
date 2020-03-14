@@ -4,14 +4,14 @@ const jwt = require('jsonwebtoken');
 
 
 function cleanTables(db) {
+  
     return db.raw(
         `TRUNCATE
             users,
             place,
             review,
             thumbText,
-            thumbChecked,
-            folder
+            thumbChecked
             RESTART IDENTITY CASCADE`
     )
 }
