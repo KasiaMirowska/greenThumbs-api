@@ -12,9 +12,7 @@ CREATE TABLE place (
     location_zip TEXT NOT NULL,
     location_st TEXT NOT NULL,
     display_phone TEXT,
-    userid INTEGER REFERENCES users(id) ON DELETE SET NULL,
-    green_reviews_count INTEGER,
-    category TEXT NOT NULL
+    green_reviews_count INTEGER
 );
 
 

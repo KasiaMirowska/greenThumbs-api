@@ -15,66 +15,114 @@ reviewsRouter
         try {
             const knexInstance = req.app.get('db');
             const user_id = req.user.id;
-
-            //const yelpId = req.params.place_id;
-            const { yelp_id, name, img, url, yelp_rating, location_str, location_city, location_zip, location_st, display_phone, green_reviews_count, category, price, userid, review, checkedThumbs } = req.body;
+            const yelpId = req.params.place_id;
+            
+            const { yelp_id, name, img, url, yelp_rating, location_str, location_city, location_zip, location_st, display_phone, green_reviews_count, category, review, checkedThumbs } = req.body;
             for (const [key, value] of Object.entries(req.body)) {
                 if (value === null) {
                     return res.status(400).send({ error: { message: `Missing ${key}` } });
                 }
             }
-            //checkedThumbs is an array of numbers referring to ids of thumb text
-            // need to save place first, then review so db assigns placeId and reviewId, then call db to get those ids and create thumbChecked obj with them
-            let newGreenPlace = {
-                yelp_id,
-                name,
-                img_url:img,
-                url,
-                yelp_rating,
-                location_str,
-                location_city,
-                location_zip,
-                location_st,
-                display_phone,
-                userid: user_id,
-                category,
-                green_reviews_count,
+            const existingReviewByUser = await PlacesService.getUserInUserPlace(knexInstance, user_id, yelpId )
+            if(existingReviewByUser) {
+                return res.status(400).send({error: {message: `your review already exists`}})
             }
+            //first check if there's a place of this id in GREEN db, if not we will save the place info, but it it already exists we will just add another review and checked thumbs
+            const existingPlace = await PlacesService.getPlaceById(knexInstance, yelpId)
+             if (!existingPlace) {
+                 console.log('HERE?????? should bt')
+                let newGreenPlace = {
+                    yelp_id,
+                    name,
+                    img_url: img,
+                    url,
+                    yelp_rating,
+                    location_str,
+                    location_city,
+                    location_zip,
+                    location_st,
+                    display_phone,
+                    green_reviews_count,
+                }
 
-            let savedPlace = await PlacesService.insertNewPlace(knexInstance, newGreenPlace)
-
-            let newReview = {
-                userid: user_id,
-                place_id: savedPlace.id,
-                review,
-            };
-            let savedReview = await ReviewsService.insertNewReview(knexInstance, newReview)
-
-
-            checkedThumbs.forEach(el => {
-                let newCheckedThumb = {
+                let savedPlace = await PlacesService.insertNewPlace(knexInstance, newGreenPlace)
+                
+                let newUserPlace = {
+                    userid: user_id,
+                    reviewed_place_id: savedPlace.id
+                }
+                let savedUserPlace= await PlacesService.insertNewUserPlace(knexInstance, newUserPlace )
+                console.log(savedUserPlace, savedPlace)
+                
+                let newReview = {
                     userid: user_id,
                     place_id: savedPlace.id,
-                    review_id: savedReview.id,
-                    thumb: el
+                    place_category: category,
+                    review,
+                };
+                let savedReview = await ReviewsService.insertNewReview(knexInstance, newReview)
+                console.log(savedReview)
+
+                checkedThumbs.forEach(el => {
+                    let newCheckedThumb = {
+                        userid: user_id,
+                        place_id: savedPlace.id,
+                        review_id: savedReview.id,
+                        thumb: el
+                    }
+                    ReviewsService.insertNewCheckedThumb(knexInstance, newCheckedThumb)
+                        .then(newThumb => {
+                            console.log(newThumb)
+                        })
+
+                })
+
+
+                console.log({ newGreenPlace, newReview, checkedThumbs }, "RETURNING TO CLIENT")
+                console.log(req.originalUrl, `/${savedPlace.id}`)
+                return res.json(201).json({ newGreenPlace, newReview, checkedThumbs }).location(path.posix.join(req.originalUrl, `/${savedPlace.id}`))
+
+            } else {
+                console.log(existingPlace, 'PLACACELLLLLLLLLLLL')
+                let newUserPlace = {
+                    userid: user_id,
+                    reviewed_place_id: existingPlace.id
                 }
-                ReviewsService.insertNewCheckedThumb(knexInstance, newCheckedThumb)
-                    .then(newThumb => {
-                        console.log(newThumb)
-                    })
+                
+                let savedUserPlace= await PlacesService.insertNewUserPlace(knexInstance, newUserPlace )
+                console.log(savedUserPlace,)
+                let newReview = {
+                    userid: user_id,
+                    place_id: existingPlace.id,
+                    place_category: category,
+                    review,
+                };
+                let savedReview = await ReviewsService.insertNewReview(knexInstance, newReview)
+                console.log(savedReview)
 
-            })
+                checkedThumbs.forEach(el => {
+                    let newCheckedThumb = {
+                        userid: user_id,
+                        place_id: existingPlace.id,
+                        review_id: savedReview.id,
+                        thumb: el
+                    }
+                    ReviewsService.insertNewCheckedThumb(knexInstance, newCheckedThumb)
+                        .then(newThumb => {
+                            console.log(newThumb, 'FFFFF?????????')
+                        })
 
-
-            console.log({ newGreenPlace, newReview, checkedThumbs }, "RETURNING TO CLIENT")
-            console.log(req.originalUrl, `/${savedPlace.id}`)
-            return res.json(201).json({ newGreenPlace, newReview, checkedThumbs }).location(path.posix.join(req.originalUrl, `/${savedPlace.id}`))
-
-
+                })
+                //console.log(existingPlace, savedReview, 'SAVED REVIEW ')
+                return res.json(201).json({ newReview, checkedThumbs }).location(path.posix.join(req.originalUrl, `/${existingPlaced.id}`))
+            }
+                
         } catch (err) {
             next(err)
         }
     })
+
+
 
 
 reviewsRouter //updating a reviewed place
@@ -85,47 +133,43 @@ reviewsRouter //updating a reviewed place
             const knexInstance = req.app.get('db');
             const green_place_id = Number(req.params.green_place_id);
             const user_id = req.user.id;
-            const { 
-                yelp_id, name, img, url, yelp_rating, 
-                location_str, location_city, location_zip, 
-                location_st, display_phone, 
-                green_reviews_count, category, review, checkedThumbs 
+            const {
+                yelp_id, name, img, url, yelp_rating,
+                location_str, location_city, location_zip,
+                location_st, display_phone,
+                green_reviews_count, category, review, checkedThumbs
             } = req.body;
+            console.log(user_id, green_place_id ,'AM I HERE?????')
+            // const existingPlace = await PlacesService.getPlaceByUserAndId(knexInstance, user_id, green_place_id)
+            // console.log(existingPlace, 'AM I HERE?????')
 
-            // for (const [key, value] of Object.entries(req.body)) {
-            //     if (value === null) {
-            //         return res.status(400).send({ error: { message: `Missing ${key}` } });
-            //     }
+            // in future should call proxy here to get place's info again in order to ensure that if the place's address or other info was not changed in yelp it gets updated in green thumbs up as well.....
+            // let updatedPlaceInfo = {
+            //     id: green_place_id,
+            //     yelp_id,
+            //     name,
+            //     img_url: img,
+            //     url,
+            //     yelp_rating,
+            //     location_str,
+            //     location_city,
+            //     location_zip,
+            //     location_st,
+            //     display_phone,
+            //     green_reviews_count,
             // }
-
-// in future should call proxy here to get place's info again in order to ensure that if the place's address or other info was not changed in yelp it gets updated in green thumbs up as well.....
-            let updatedPlaceInfo = {
-                id: green_place_id,
-                yelp_id,
-                name,
-                img_url:img,
-                url,
-                yelp_rating,
-                location_str,
-                location_city,
-                location_zip,
-                location_st,
-                display_phone,
-                userid: user_id,
-                green_reviews_count,
-                category,
-            }
 
             const updatedReviewInfo = {
                 userid: user_id,
                 place_id: green_place_id,
+                place_category: category,
                 date: new Date(),
                 review,
             };
-            
-            const updatedPlace = await PlacesService.updateGreenPlace(knexInstance, user_id, green_place_id, updatedPlaceInfo);
-            const updatedReview = await ReviewsService.updateReview(knexInstance, user_id, green_place_id, updatedReviewInfo);
 
+            // const updatedPlace = await PlacesService.updateGreenPlace(knexInstance, user_id, green_place_id, updatedPlaceInfo);
+            const updatedReview = await ReviewsService.updateReview(knexInstance, user_id, green_place_id, updatedReviewInfo);
+            console.log(updatedReview, 'UPDATE???')
             checkedThumbs.forEach(el => {
                 let updatedCheckedThumbInfo = {
                     userid: user_id,
@@ -139,7 +183,7 @@ reviewsRouter //updating a reviewed place
                     });
             });
 
-            return res.json(201).json({ updatedPlace, updatedReview, checkedThumbs }).location(path.posix.join(req.originalUrl, `/${green_place_id}`));
+            return res.json(201).json({updatedReview, checkedThumbs }).location(path.posix.join(req.originalUrl, `/${green_place_id}`));
 
         } catch (err) {
             next(err);
@@ -166,7 +210,7 @@ reviewsRouter
             .then(() => {
                 console.log('DONE????')
                 return res.status(204).send('reviewed place deleted')
-            
+
             })
             .catch(next)
     })
