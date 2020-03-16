@@ -82,19 +82,26 @@ const makeTestReviews = () => {
             userid: 1,
             place_id: 1,
             review: 'first review',
-           
+            date: '2020-01-22T16:28:32.615Z',
         },
         {
             id:2,
             userid: 1,
-            place_id: 1,
+            place_id: 2,
             review: 'second review',
-           
+            date: '2020-01-22T16:28:32.615Z'
         },
         {
-            id:2,
+            id:3,
             userid: 1,
             place_id: 3,
+            review: 'third review',
+            date: '2020-01-22T16:28:32.615Z'
+        },
+        {
+            id:4,
+            userid: 2,
+            place_id: 2,
             review: 'third review',
            
         }
@@ -126,30 +133,30 @@ const makeTestThumbChecked = () => {
     return [
         {
             id: 1,
-            userId: 1,
-            placeId: 1,
-            reviewId: 1,
+            userid: 1,
+            place_id: 1,
+            review_id: 1,
             thumb: 1
         },
         {
             id: 2,
-            userId: 1,
-            placeId: 1,
-            reviewId: 1,
+            userid: 1,
+            place_id: 1,
+            review_id: 1,
             thumb: 2
         },
         {
             id: 3,
-            userId: 1,
-            placeId: 3,
-            reviewId: 2,
+            userid: 1,
+            place_id: 3,
+            review_id: 2,
             thumb: 3
         },
         {
             id: 4,
-            userId: 1,
-            placeId: 3,
-            reviewId: 2,
+            userid: 1,
+            place_id: 3,
+            review_id: 2,
             thumb: 4
         }
     ]

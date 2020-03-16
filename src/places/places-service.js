@@ -14,6 +14,10 @@ const PlacesService = {
         return knex.from('place').select('*').where({'id': place_id, userid: user_id}).first()
     },
 
+    getPlaceByYelpId: (knex, userId, yelpId) => {
+        return knex.from('place').select('*').where({'yelp_id': yelpId, userid: userId}).first()
+    },
+
     insertNewPlace: (knex, newPlace) => {
         return knex.into('place').insert(newPlace).returning('*')
         .then((rows) => {

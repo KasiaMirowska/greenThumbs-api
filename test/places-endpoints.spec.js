@@ -31,51 +31,23 @@ describe('places endpoints', function () {
 
         context('given reviewed places in db', () => {
             beforeEach('insert places', () => {
-                //helpers.seedGreenPlaces(db, testPlaces, testReviews, testThumbText, testThumbChecked)
-                return db
-                    .into('users')
-                    .insert(testUsers)
-                    .then(() => {
-                        return db
-                            .into('place')
-                            .insert(testPlaces)
-                            .then(() => {
-                                return db
-                                    .into('review')
-                                    .insert(testReviews)
-                                    .then(() => {
-                                        return db
-                                            .into('thumbText')
-                                            .insert(testThumbText)
-                                            .then(() => {
-                                                return db
-                                                    .into('thumbChecked')
-                                                    .insert(testThumbChecked)
-                                                    .then(() => {
-                                                        db.from('thumbChecked').select('*')
-                                                        .then((thumbs) => {
-                                                            console.log(thumbs, 'UEEEEEEE')
-                                                        })
-                                                        
-                                                    })
-                                            })
-                                    })
-                            })
+                helpers.seedGreenPlaces(db, testPlaces, testReviews, testThumbText, testThumbChecked)
                     })
         
         })
         it('responds with 200 and places list', () => {
-            // const placeId = testPlaces[0].id
-            // const expectedGreenReviewedPlacesList = helpers.makeExpectedPlace(testUsers, testPlaces, testReviews, testThumbText, testThumbChecked);
+            const placeId = testPlaces[0].id
+            const expectedReview = helpers.makeExpectedPlaceReviews(testUsers[0], testPlaces[0], testReviews)
+            //const expectedGreenReviewedPlacesList = helpers.makeExpectedPlace(testUsers, testPlaces, testReviews, testThumbText, testThumbChecked);
 
-            // return supertest(app)
-            // .get('/api/')
-            // .expect(200, expectedGreenReviewedPlacesList)
+            return supertest(app)
+            .get('/api/')
+            .expect(200, expectedGreenReviewedPlacesList)
         })
 
 
     })
-})
+
 //fetches all green places by user
 describe('GET /api/user', () => {
     context('given no places in db', () => {

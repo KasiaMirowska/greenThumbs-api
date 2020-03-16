@@ -15,13 +15,18 @@ reviewsRouter
         try {
             const knexInstance = req.app.get('db');
             const user_id = req.user.id;
+            const yelpId = req.params.place_id;
 
-            //const yelpId = req.params.place_id;
+            console.log(req.user, user_id)
             const { yelp_id, name, img, url, yelp_rating, location_str, location_city, location_zip, location_st, display_phone, green_reviews_count, category, price, userid, review, checkedThumbs } = req.body;
             for (const [key, value] of Object.entries(req.body)) {
                 if (value === null) {
                     return res.status(400).send({ error: { message: `Missing ${key}` } });
                 }
+            }
+            let existingUserReviewedPlace = await PlacesService.getPlaceByYelpId(knexInstance, user_id, yelpId)
+            if (existingUserReviewedPlace) {
+                return res.status(400).send({ error: { message: `You have already reviewed this place` } });
             }
             //checkedThumbs is an array of numbers referring to ids of thumb text
             // need to save place first, then review so db assigns placeId and reviewId, then call db to get those ids and create thumbChecked obj with them
@@ -92,11 +97,6 @@ reviewsRouter //updating a reviewed place
                 green_reviews_count, category, review, checkedThumbs 
             } = req.body;
 
-            // for (const [key, value] of Object.entries(req.body)) {
-            //     if (value === null) {
-            //         return res.status(400).send({ error: { message: `Missing ${key}` } });
-            //     }
-            // }
 
 // in future should call proxy here to get place's info again in order to ensure that if the place's address or other info was not changed in yelp it gets updated in green thumbs up as well.....
             let updatedPlaceInfo = {
