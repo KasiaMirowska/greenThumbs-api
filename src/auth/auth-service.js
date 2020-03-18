@@ -22,6 +22,7 @@ const AuthService = {
         console.log(token, 'TTTTTTTTT')
         return jwt.verify(token, config.JWT_SECRET, {algorithms: ['HS256']})
     },
+   
 }
 
 module.exports = AuthService;

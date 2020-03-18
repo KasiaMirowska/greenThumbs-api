@@ -1,8 +1,13 @@
 const bcrypt = require('bcryptjs');
-
-bcrypt.hash('demo12345', 10)
+bcrypt.hash('!@123Abcd', 1)
     .then(hash => {
-        concole.log({hash})
+        console.log({hash}, 'HASH')
     })
-    .catch(error)
+    
+
+// bcrypt.hash('demo12345', 10)
+//     .then(hash => {
+//         concole.log({hash})
+//     })
+//     .catch(error)
 

@@ -7,7 +7,7 @@ const helpers = require('./test-helpers');
 describe('places endpoints', function () {
     let db;
 
-    const { testPlaces, testUsers, testReviews, testThumbText, testThumbChecked } = dataHelpers.makeTestData()
+    const { testUsers, testPlaces, testReviews, testUserPlaces, testThumbText, testThumbChecked } = dataHelpers.makeTestData()
     before('knex instance', () => {
         db = knex({
             client: 'pg',
@@ -20,7 +20,7 @@ describe('places endpoints', function () {
     beforeEach('cleanup', () => helpers.cleanTables(db));
     afterEach('cleanup', () => helpers.cleanTables(db));
 
-    describe.only('GET /api/', () => {
+    describe('GET /api/', () => {
         context('given no green reviewed places', () => {
             it('responds with 200 and an empty list', () => {
                 return supertest(app)
@@ -31,77 +31,117 @@ describe('places endpoints', function () {
 
         context('given reviewed places in db', () => {
             beforeEach('insert places', () => {
-                //helpers.seedGreenPlaces(db, testPlaces, testReviews, testThumbText, testThumbChecked)
+                return helpers.seedGreenPlaces1(db, testUsers, testPlaces, testReviews, testUserPlaces, testThumbText, testThumbChecked)
+            });
+
+            it('responds with 200 and places array', () => {
+                const expectedPlace = helpers.makeExpectedPlaceReviews(db, testUsers[0], testPlaces[0], testUserPlaces, testReviews, testThumbChecked)
+                return supertest(app)
+                    .get('/api/')
+                    .expect(200)
+                    .expect(res => {
+                        console.log(res.body, 'BODY')
+                        res.body[0] === expectedPlace;
+                        // {
+                        //     "checkedThumbs": [
+                        //         "No single use plastic",
+                        //         "Compostable take-out containers and cups"
+                        //     ],
+                        //     "display_phone": "(123) 345 5678",
+                        //     "green_reviews_count": 2,
+                        //     "id": 1,
+                        //     "img": "image1",
+                        //     "location_city": "cityFirst",
+                        //     "location_st": "MA",
+                        //     "location_str": "1 street",
+                        //     "location_zip": "012345",
+                        //     "name": "first place",
+                        //     "review": [
+                        //       "first review"
+                        //     ],
+                        //     "reviewCategory": [
+                        //       "category1"
+                        //     ],
+                        //     "reviewDate": [
+                        //       "Wed Jan 22 2020 16:28:32 GMT-0500 (Eastern Standard Time)"
+                        //     ],
+                        //     "url": "yelpUrl",
+                        //     "yelp_id": "aB1c",
+                        //     "yelp_rating": "5"
+                        // }
+                    });
+            });
+        });
+    });
+
+    //fetches all green places by user
+
+    describe('GET /api/user', () => {
+        context('given no reviewed places by user in db', () => {
+            beforeEach('insert users', () => {
+                const verifiedUsers = testUsers.map(user => ({
+                    ...user,
+                    password: bcrypt.hashSync(user.password, 1)
+                }))
                 return db
                     .into('users')
-                    .insert(testUsers)
-                    .then(() => {
-                        return db
-                            .into('place')
-                            .insert(testPlaces)
-                            .then(() => {
-                                return db
-                                    .into('review')
-                                    .insert(testReviews)
-                                    .then(() => {
-                                        return db
-                                            .into('thumbText')
-                                            .insert(testThumbText)
-                                            .then(() => {
-                                                return db
-                                                    .into('thumbChecked')
-                                                    .insert(testThumbChecked)
-                                                    .then(() => {
-                                                        db.from('thumbChecked').select('*')
-                                                        .then((thumbs) => {
-                                                            console.log(thumbs, 'UEEEEEEE')
-                                                        })
-                                                        
-                                                    })
-                                            })
-                                    })
-                            })
+                    .insert(verifiedUsers)
+                    .then(users => console.log('verified users populated'))
+            })
+            it('returns 400 ', () => {
+                return supertest(app)
+                    .get('/api/user')
+                    .set('Authorization', helpers.makeAuthHeader(testUsers[1]))
+                    .expect(400, {
+                        "error": {
+                            "message": "User with id 1 did not review place with id 5"
+                        }
                     })
-        
-        })
-        it('responds with 200 and places list', () => {
-            // const placeId = testPlaces[0].id
-            // const expectedGreenReviewedPlacesList = helpers.makeExpectedPlace(testUsers, testPlaces, testReviews, testThumbText, testThumbChecked);
-
-            // return supertest(app)
-            // .get('/api/')
-            // .expect(200, expectedGreenReviewedPlacesList)
+                    
+            })
         })
 
+        context.only('given reviewed places in db', () => {
+            beforeEach('insert data', () => {
+                console.log(testUsers[0])
+                helpers.seedGreenPlaces2(db, testUsers, testPlaces, testReviews, testUserPlaces, testThumbText, testThumbChecked)
+            })
+
+            it('returns 200 and a list of user places', () => {
+                return supertest(app)
+                    .get('/api/user')
+                    .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
+                    .expect(200, [])
+                    .expect(res => {
+                        console.log(res.body)
+                    })
+            })
+        })
 
     })
-})
-//fetches all green places by user
-describe('GET /api/user', () => {
-    context('given no places in db', () => {
-        beforeEach('insert users', () => {
-            //helpers.seedUsers(db, testUsers)
-            const users = testUsers.map(user => ({
-                ...user,
-                password: bcrypt.hashSync(user.password, 1)
-            }))
-            console.log(users[0], users[0].password, 'HERE?????????')
-            return db
-                .into('users')
-                .insert(users)
-                .then(users => {
-                    console.log('users populated2')
-                })
-        })
+    //get user's place by id
+    describe('GET /api/place/:place_id', () => {
+        context('given no places with given id', () => {
+            beforeEach('insert users', () => {
+                const verifiedUsers = testUsers.map(user => ({
+                    ...user,
+                    password: bcrypt.hashSync(user.password, 1)
+                }))
+                return db
+                    .into('users')
+                    .insert(verifiedUsers)
+                    .then(users => console.log('verified users populated'))
+            }) 
 
-        it('returns 200 and empty array', () => {
-            console.log('???????')
-            return supertest(app)
-                .get('/api/user')
-                .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
-                .expect(200, [])
+            it('returns 404', () => {
+                const placeId = 12;
+                return supertest(app)
+                    .get(`/api/place/${placeId}`)
+                    .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
+                    .expect(404, { error: { message: `User with id${testUsers[0].id} did not review place with id ${placeId}` } })
+
+            })
         })
     })
 })
 
-})

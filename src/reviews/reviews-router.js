@@ -80,7 +80,7 @@ reviewsRouter
 
                 console.log({ newGreenPlace, newReview, checkedThumbs }, "RETURNING TO CLIENT")
                 console.log(req.originalUrl, `/${savedPlace.id}`)
-                return res.json(201).json({ newGreenPlace, newReview, checkedThumbs }).location(path.posix.join(req.originalUrl, `/${savedPlace.id}`))
+                return res.json(201).json({ newGreenPlace, newReview, checkedThumbs }).location(path.posix.join(req.originalUrl, `/${newGreenPlace.id}`))
 
             } else {
                 console.log(existingPlace, 'PLACACELLLLLLLLLLLL')
@@ -91,6 +91,7 @@ reviewsRouter
                 
                 let savedUserPlace= await PlacesService.insertNewUserPlace(knexInstance, newUserPlace )
                 console.log(savedUserPlace,)
+                
                 let newReview = {
                     userid: user_id,
                     place_id: existingPlace.id,
@@ -114,7 +115,7 @@ reviewsRouter
 
                 })
                 //console.log(existingPlace, savedReview, 'SAVED REVIEW ')
-                return res.json(201).json({ newReview, checkedThumbs }).location(path.posix.join(req.originalUrl, `/${existingPlaced.id}`))
+                return res.json(201).json({ newReview, checkedThumbs }).location(path.posix.join(req.originalUrl, `/${green_place_id}`))
             }
                 
         } catch (err) {
@@ -131,7 +132,7 @@ reviewsRouter //updating a reviewed place
     .all(jsonBodyParser, async (req, res, next) => {
         try {
             const knexInstance = req.app.get('db');
-            const green_place_id = Number(req.params.green_place_id);
+            const green_place_id = req.params.green_place_id;
             const user_id = req.user.id;
             const {
                 yelp_id, name, img, url, yelp_rating,
@@ -140,8 +141,7 @@ reviewsRouter //updating a reviewed place
                 green_reviews_count, category, review, checkedThumbs
             } = req.body;
             console.log(user_id, green_place_id ,'AM I HERE?????')
-            // const existingPlace = await PlacesService.getPlaceByUserAndId(knexInstance, user_id, green_place_id)
-            // console.log(existingPlace, 'AM I HERE?????')
+           
 
             // in future should call proxy here to get place's info again in order to ensure that if the place's address or other info was not changed in yelp it gets updated in green thumbs up as well.....
             // let updatedPlaceInfo = {
@@ -158,7 +158,7 @@ reviewsRouter //updating a reviewed place
             //     display_phone,
             //     green_reviews_count,
             // }
-
+            
             const updatedReviewInfo = {
                 userid: user_id,
                 place_id: green_place_id,
@@ -169,7 +169,7 @@ reviewsRouter //updating a reviewed place
 
             // const updatedPlace = await PlacesService.updateGreenPlace(knexInstance, user_id, green_place_id, updatedPlaceInfo);
             const updatedReview = await ReviewsService.updateReview(knexInstance, user_id, green_place_id, updatedReviewInfo);
-            console.log(updatedReview, 'UPDATE???')
+            console.log(updatedReview, 'UPDATE???', updatedReview.id)
             checkedThumbs.forEach(el => {
                 let updatedCheckedThumbInfo = {
                     userid: user_id,
@@ -202,10 +202,11 @@ reviewsRouter
         const placeToRemove = Number(req.params.green_place_id);
         console.log(userId, placeToRemove, req.user, 'IN DELETE')
         //how to determine that we cant delete a place if current user is not its author? => on front end
-        PlacesService.deleteReviewedPlace(knexInstance, userId, placeToRemove)
+        PlacesService.deleteUserPlace(knexInstance, userId, placeToRemove)
             .then(() => {
                 //delete the rest of info
-                return ReviewsService.deleteReview(knexInstance, userId, placeToRemove)
+                 ReviewsService.deleteReview(knexInstance, userId, placeToRemove)
+            //})
             })
             .then(() => {
                 console.log('DONE????')

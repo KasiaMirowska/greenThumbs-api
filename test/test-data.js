@@ -37,9 +37,7 @@ const makeTestPlaces = () => {
             location_zip: '012345',
             location_st: 'MA',
             display_phone: '(123) 345 5678',
-            userid: 1,
             green_reviews_count: 2,
-            category: 'category1',
         },
         {
             id: 2,
@@ -53,9 +51,7 @@ const makeTestPlaces = () => {
             location_zip: '012345',
             location_st: 'MA',
             display_phone: '(123) 345 5678',
-            userid: 2,
             green_reviews_count: 1,
-            category: 'category2',
         },
         {
             id: 3,
@@ -69,9 +65,7 @@ const makeTestPlaces = () => {
             location_zip: '012345',
             location_st: 'MA',
             display_phone: '(123) 345 5678',
-            userid: 3,
             green_reviews_count: 0,
-            category: 'category3',
         },
     ]
 }
@@ -81,23 +75,35 @@ const makeTestReviews = () => {
             id:1,
             userid: 1,
             place_id: 1,
+            place_category: 'category1',
             review: 'first review',
-           
+            date: '2019-01-22T16:28:32.615Z'
         },
         {
             id:2,
             userid: 1,
             place_id: 1,
+            place_category: 'category1',
             review: 'second review',
+            date: '2019-01-22T16:28:32.615Z'
            
         },
         {
-            id:2,
+            id:3,
             userid: 1,
             place_id: 3,
             review: 'third review',
-           
-        }
+            place_category: 'category1',
+            date: '2019-01-22T16:28:32.615Z'
+        },
+        {
+            id:4,
+            userid: 2,
+            place_id: 2,
+            place_category: 'category2',
+            review: 'fourth review',
+            date: '2019-01-22T16:28:32.615Z'
+        },
     ]
 }
 
@@ -126,34 +132,71 @@ const makeTestThumbChecked = () => {
     return [
         {
             id: 1,
-            userId: 1,
-            placeId: 1,
-            reviewId: 1,
+            userid: 1,
+            place_id: 1,
+            review_id: 1,
             thumb: 1
         },
         {
             id: 2,
-            userId: 1,
-            placeId: 1,
-            reviewId: 1,
-            thumb: 2
+            userid: 1,
+            place_id: 1,
+            review_id: 1,
+            thumb: 4
         },
         {
             id: 3,
-            userId: 1,
-            placeId: 3,
-            reviewId: 2,
+            userid: 1,
+            place_id: 3,
+            review_id: 2,
             thumb: 3
         },
         {
             id: 4,
-            userId: 1,
-            placeId: 3,
-            reviewId: 2,
+            userid: 1,
+            place_id: 3,
+            review_id: 2,
             thumb: 4
+        },
+        {
+            id: 5,
+            userid: 2,
+            place_id: 2,
+            review_id: 4,
+            thumb: 2
+        },
+    ]
+}
+
+makeUserPlaces = () => {
+    return [
+        {
+            userid:1,
+            reviewed_place_id: 1,
+        },
+        {
+            userid:1,
+            reviewed_place_id: 2,
+        },
+        {
+            userid:1,
+            reviewed_place_id: 3,
+        },
+        {
+            userid:2,
+            reviewed_place_id: 1,
+        },
+        {
+            userid:2,
+            reviewed_place_id: 2,
+        },
+        {
+            userid:3,
+            reviewed_place_id: 1,
         }
     ]
 }
+
 
 makeTestData = () => {
     testUsers = makeTestUsers();
@@ -161,7 +204,8 @@ makeTestData = () => {
     testReviews = makeTestReviews();
     testThumbText = makeTestTumbText();
     testThumbChecked = makeTestThumbChecked();
-    return { testUsers, testPlaces, testReviews, testThumbText, testThumbChecked};
+    testUserPlaces = makeUserPlaces()
+    return { testUsers, testPlaces, testReviews, testUserPlaces, testThumbText, testThumbChecked};
 }
 
 module.exports = {

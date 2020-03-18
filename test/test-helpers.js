@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 
 function cleanTables(db) {
-  
+
     return db.raw(
         `TRUNCATE
             users,
@@ -16,110 +16,143 @@ function cleanTables(db) {
     )
 }
 
-function seedGreenPlaces(db, users, places, reviews, thumbText, thumbChecked) {
-    //console.log(db, 'DBBBBBBEEEE')
+function seedGreenPlaces1(db, users, places, userPlaces, reviews, thumbText, thumbChecked) {
     return db
         .into('users')
         .insert(users)
         .then(() => {
-            db.from('users').select('*')
-             .then((users) => {
-                 console.log(users, 'UEEEEEEE')
-            //     return db
-            //     .into('place')
-            //     .insert(places)
-            //     .then(() => {
-            //         return db
-            //             .into('review')
-            //             .insert(reviews)
-            //             .then(() => {
-            //                 return db
-            //                     .into('thumbText')
-            //                     .insert(thumbText)
-            //                     .then(() => {
-            //                         return db
-            //                             .into('thumbChecked')
-            //                             .insert(thumbChecked)
-            //                             .then(() => {
-            //                                  console.log('populated db')
-            //                             })
-            //                     })
-            //             })
-            //     })
-             })
-            
-        })
-}
+            return db
+                .into('place')
+                .insert(testPlaces)
+                .then(() => {
+                    return db
+                        .into('userplace')
+                        .insert(testUserPlaces)
+                        .then(() => {
+                            return db
+                                .into('review')
+                                .insert(testReviews)
+                                .then(() => {
+                                    return db
+                                        .into('thumbtext')
+                                        .insert(testThumbText)
+                                        .then(() => {
+                                            return db
+                                                .into('thumbchecked')
+                                                .insert(testThumbChecked)
+                                                .then(() => {
+                                                    console.log('db populated');
+                                                });
+                                        });
+                                });
+                        })
 
-function seedUsers(db, users) {
-    const preppedUsers = users.map(user => ({
+
+                });
+        });
+}
+function seedGreenPlaces2(db, users, places, userPlaces, reviews, thumbText, thumbChecked) {
+    const verifiedUsers = users.map(user => ({
         ...user,
         password: bcrypt.hashSync(user.password, 1)
-    }));
+    }))
     return db
         .into('users')
-        .insert(preppedUsers)
+        .insert(verifiedUsers)
         .then(() => {
-            console.log('users populated')
+            return db
+                .into('place')
+                .insert(places)
         })
-}
-
-function makeExpectedPlace(users, places, reviews, thumbText, thumbChecked) {
-    let greenPlacesList = [];
-    for (let i = 0; i < places.length; i++) {
-       
-        let filteredReviews = reviews.filter(rev => rev.place_Id === places[i].id)
-       
-        console.log(filteredReviews, 'Final???????')
-        let reviewText = {};
-        let reviewDate = {};
-        let reviewCheckedThumbs = {}
-
-        finalFilteredReviews.forEach(rev => {
-            // reviewText[rev.review] = true;
-            // reviewDate[rev.date] = true;
-            reviewCheckedThumbs[rev.description] = true;
+        .then(() => {
+            return db
+                .into('userplace')
+                .insert(userPlaces)
+        })
+        .then(() => {
+            return db
+                .into('review')
+                .insert(reviews)
+        })
+        .then(() => {
+            return db
+                .into('thumbtext')
+                .insert(thumbText)
+        })
+        .then(() => {
+            return db
+                .into('thumbchecked')
+                .insert(thumbChecked)
+                .then(() => {
+                    console.log('db populated');
+                });
         });
 
-        greenPlacesList.push({
-            id: places[i].id,
-            yelpId: places[i].yelpid,
-            name: places[i].name,
-            img: places[i].img,
-            url: places[i].url,
-            yelpRating: places[i].yelpRating,
-            location_str: places[i].location_str,
-            location_city: places[i].location_city,
-            location_zip: places[i].location_zip,
-            location_st: places[i].location_st,
-            phone: places[i].phone,
-            displayphone: places[i].phone,
-            userId: places[i].userId,
-            folderId: places[i].folderId,
-            green_reviews_count: places[i].green_reviews_count,
-            review: filteredReviews.map(rev => rev.review),
-            reviewDate:filteredReviews.map(rev => rev.date),
-            checkedthumbs: Object.keys(reviewCheckedThumbs)
-        })
-    }
-    console.log(greenPlacesList)
-    return greenPlacesList;
-
 }
+
+
+
+
+function makeExpectedPlaceReviews(db, user, place, userPlaces, reviews, checkedThumbs) {
+    console.log('wtf?????', user, place, reviews)
+    let filteredByUser = reviews.filter(rev => rev.userid === user.id);
+    console.log(filteredByUser, '2222')
+    let filteredByPlace = filteredByUser.filter(rev => rev.place_id === place.id);
+
+    console.log(filteredByPlace[0], '33333333')
+    let filteredReview = filteredByPlace[0];
+    console.log(filteredReview.id, 'REALLY??????')
+
+    let filteredThumbs = checkedThumbs.filter(e => e.review_id === filteredReview.id)
+    console.log(filteredReview.id, filteredThumbs, 'Final???????')
+
+    let reviewCheckedThumbs = {}
+
+    filteredThumbs.forEach(thumb => {
+        reviewCheckedThumbs[thumb.thumb] = true;
+    });
+
+    const expectedPlace = {
+        id: place.id,
+        yelp_id: place.yelp_id,
+        name: place.name,
+        img: place.img_url,
+        url: place.url,
+        yelp_rating: place.yelp_rating,
+        location_str: place.location_str,
+        location_city: place.location_city,
+        location_zip: place.location_zip,
+        location_st: place.location_st,
+        display_phone: place.display_phone,
+        userid: user.id,
+        green_reviews_count: place.green_reviews_count,
+        review: filteredReview.review,
+        reviewDate: filteredReview.date,
+        category: filteredReview.place_category,
+        checkedthumbs: Object.keys(reviewCheckedThumbs)
+    }
+    console.log(expectedPlace, 'IS IT HERE???????!!!!!!!!!')
+    return expectedPlace;
+}
+
+
+
+
 
 function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
     const token = jwt.sign({ user_id: user.id }, secret, {
         subject: user.username,
         algorithm: 'HS256'
     })
+    console.log(token)
     return `Bearer ${token}`
 }
 
 module.exports = {
     cleanTables,
-    seedGreenPlaces,
-    seedUsers,
-    makeExpectedPlace,
+    seedGreenPlaces1,
+    seedGreenPlaces2,
+    makeExpectedPlaceReviews,
     makeAuthHeader,
-    
+
 }

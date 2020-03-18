@@ -1,14 +1,8 @@
 
 const PlacesService = {
-    getAllGreenPlaces: (knex) => {
-        return knex
-            .from('place AS pl')
-            .select('*')
-            .join('userplace AS usrpl',
-                'usrpl.reviewed_place_id',
-                'pl.id'
-            )
-    },
+    getAllGreenPlaces: knex => (
+        knex.from('place AS pl').select('*')
+    ),
 
     getAllGreenPlacesByUser: (knex, userId) => {
         return knex
@@ -18,18 +12,18 @@ const PlacesService = {
                 'usrpl.reviewed_place_id',
                 'pl.id'
             )
-            .where('userid', userId)
+            .where('userid', userId);
     },
 
     getPlaceByUserAndId: (knex, user_id, place_id) => {
         return knex
-        .from('place AS pl')
-        .select('*')
+            .from('place AS pl')
+            .select('*')
             .join('userplace AS usrpl',
                 'usrpl.reviewed_place_id',
                 'pl.id'
             )
-        .where({ 'usrpl.userid': user_id, 'pl.id': place_id, }).first()
+            .where({ 'usrpl.userid': user_id, 'pl.id': place_id, }).first()
             .then((rows) => {
                 console.log(rows, '1111111111ROWS OF PLACE BY USER ID')
                 return rows;
@@ -48,16 +42,25 @@ const PlacesService = {
             })
     },
 
+    getAllUserPlaces: (knex) => {
+        return knex.from ('userplace AS usrpl').select('usrpl.reviewed_place_id')
+        .then(rows => {
+           const reviewedIds = [];
+            rows.forEach(el => reviewedIds.push(el.reviewed_place_id))
+            return reviewedIds;
+        })
+    },
+
     getUserInUserPlace: (knex, userId, yelp_id) => {
         return knex
-        .from('place')
-        .select('place.id' , 'place.yelp_id', 'userid')
-        .join('userplace', 'userplace.reviewed_place_id', 'place.id')
-        .where({userid: userId, yelp_id: yelp_id}).first()
-        .then(rows => {
-            console.log(rows)
-            return rows;
-        })
+            .from('place')
+            .select('place.id', 'place.yelp_id', 'userid')
+            .join('userplace', 'userplace.reviewed_place_id', 'place.id')
+            .where({ userid: userId, yelp_id: yelp_id }).first()
+            .then(rows => {
+                console.log(rows)
+                return rows;
+            })
     },
 
     insertNewPlace: (knex, newPlace) => {
@@ -66,7 +69,7 @@ const PlacesService = {
                 return rows[0]
             })
     },
-    
+
     insertNewUserPlace: (knex, newUserPlace) => {
         return knex.into('userplace').insert(newUserPlace).returning('*')
             .then((rows) => {
@@ -83,16 +86,24 @@ const PlacesService = {
         // })
     },
 
+    deleteUserPlace: (knex, userId, place_id) => {
+        return knex.from('userplace').select('*').where({userid: userId, reviewed_place_id: place_id}).del()
+        .then(rows => {
+            console.log(rows, 'DELETING USEPLCASE==')
+            return rows
+        })
+    },
+
     deleteReviewedPlace: (knex, userId, place_id) => {
         console.log(userId, place_id)
         return knex
-        .from('place AS pl')
-        .select('*')
-        .join('userplace AS usrpl',
-        'usrpl.reviewed_place_id',
-        'pl.id'
-    )
-        .where({ id: place_id}).del()
+            .from('place AS pl')
+            .select('*')
+            .join('userplace AS usrpl',
+                'usrpl.reviewed_place_id',
+                'pl.id'
+            )
+            .where({ id: place_id }).del()
             .then((rows) => {
                 console.log(rows, '???????>>>3333333//////?????????')
             })

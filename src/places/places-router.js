@@ -12,16 +12,28 @@ placesRouter // gets all green thumb reviewed places with full info
             res.placesReviewed = [];
             const knexInstance = req.app.get('db')
             const places = await PlacesService.getAllGreenPlaces(knexInstance);
-        
-           
-            for (let i = 0; i < places.length; i++) {
-                const reviews = await ReviewsService.getAllReviews(knexInstance, places[i].id);
+            const reviewedPlacesIds = await PlacesService.getAllUserPlaces(knexInstance);
+            //need to filter here so that client doesn't show places which reviews has been deleted/
+            let filteredPlaces = [];
+            places.filter(pl => {
+                reviewedPlacesIds.filter(id => {
+                    if (pl.id === id) {
+                        filteredPlaces.push(pl)
+                    };
+                });
+                return filteredPlaces;
+            });
+            
+            for (let i = 0; i < filteredPlaces.length; i++) {
+                const reviews = await ReviewsService.getAllReviews(knexInstance, filteredPlaces[i].id);
+               
                 if (reviews) {
+                  
                     let reviewText = {};
                     let reviewDate = {};
                     let reviewCategory = {};
                     let reviewCheckedThumbs = {}
-                    
+
                     reviews.forEach(rev => {
                         reviewText[rev.review] = true;
                         reviewDate[rev.date] = true;
@@ -32,8 +44,8 @@ placesRouter // gets all green thumb reviewed places with full info
                     const {
                         id, yelp_id, name, img_url, url, yelp_rating,
                         location_str, location_city, location_zip,
-                        location_st, display_phone, green_reviews_count, userid
-                    } = places[i];
+                        location_st, display_phone, green_reviews_count
+                    } = filteredPlaces[i];
 
                     res.placesReviewed.push({
                         id,
@@ -48,7 +60,6 @@ placesRouter // gets all green thumb reviewed places with full info
                         location_st,
                         display_phone,
                         green_reviews_count: reviews.length,
-                        userid,
                         review: Object.keys(reviewText),
                         reviewDate: Object.keys(reviewDate),
                         reviewCategory: Object.keys(reviewCategory),
@@ -57,14 +68,15 @@ placesRouter // gets all green thumb reviewed places with full info
                 };
                 
             };
+           
             next();
         } catch (err) {
-            next(err);
-        }
+    next(err);
+}
     })
     .get((req, res, next) => {
-        res.status(200).json(res.placesReviewed)
-    });
+    res.status(200).json(res.placesReviewed)
+});
 
 
 placesRouter
@@ -76,20 +88,21 @@ placesRouter
         try {
             const knexInstance = req.app.get('db');
             const user_id = Number(req.user.id);
-        
+
             res.userPlacesReviewed = [];
-            const userPlaces = await PlacesService.getAllGreenPlacesByUser(knexInstance, user_id)
-            console.log(userPlaces, 'PLACES')
-            if (userPlaces.length) {
+            const userPlaces = await PlacesService.getAllGreenPlacesByUser(knexInstance, user_id);
+
+            if (userPlaces.length > 0) {
                 for (let i = 0; i < userPlaces.length; i++) {
                     const userReviews = await ReviewsService.getAllReviewsByUser(knexInstance, user_id, userPlaces[i].id)
+                    console.log(userReviews, "REVIEWS wtf?")
                     if (userReviews) {
-                        console.log(userReviews)
+
                         let reviewText = {};
                         let reviewDate = {};
                         let reviewCategory = {};
                         let reviewCheckedThumbs = {}
-                       
+
                         userReviews.forEach(rev => {
                             reviewText[rev.review] = true;
                             reviewDate[rev.date] = true;
@@ -145,15 +158,15 @@ placesRouter //gets by id reviewed place with full info
     .all((req, res, next) => {
         const knexInstance = req.app.get('db');
         const user_id = req.user.id
-        const place_id  = req.params.place_id;
-        
+        const place_id = req.params.place_id;
+
         PlacesService.getPlaceByUserAndId(knexInstance, user_id, place_id)
             .then(place => {
                 if (!place) {
                     return res.status(404).json({ error: { message: `User with id ${user_id} did not review place with id ${place_id}` } })
                 }
                 res.place = place
-                
+
                 ReviewsService.getReviewByPlaceId(knexInstance, user_id, place_id)
                     .then(reviews => {
                         console.log(reviews, 'REVIEWS IN GET BYY ID')
@@ -161,15 +174,15 @@ placesRouter //gets by id reviewed place with full info
                             let reviewText = {};
                             let reviewDate = {};
                             let reviewCheckedThumbs = {}
-    
+
                             reviews.forEach(rev => {
                                 reviewText[rev.review] = true;
                                 reviewDate[rev.date] = true;
                                 reviewCheckedThumbs[rev.description] = true;
                             });
-    
+
                             res.fullReviewedPlace = {
-                               ...res.place,
+                                ...res.place,
                                 review: Object.keys(reviewText),
                                 reviewDate: Object.keys(reviewDate),
                                 checkedThumbs: Object.keys(reviewCheckedThumbs)
