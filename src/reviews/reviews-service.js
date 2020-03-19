@@ -57,7 +57,10 @@ const ReviewsService = {
                     'rev.userid': userId,
                     'rev.place_id': placeId,
                 }
-            );
+            )
+            .then(rows => {
+                return rows;
+            })
     },
 
     getReviewByPlaceId: (knex, userId, placeId) => {
@@ -88,7 +91,11 @@ const ReviewsService = {
                     'rev.userid': userId,
                     'rev.place_id': placeId,
                 }
-            );
+            )
+            .then(rows => {
+                console.log(rows, "<<<<<<<REVIEW BY ID>>>>>>")
+                return rows
+            })
 
 
     },

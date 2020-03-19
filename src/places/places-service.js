@@ -12,10 +12,15 @@ const PlacesService = {
                 'usrpl.reviewed_place_id',
                 'pl.id'
             )
-            .where('userid', userId);
+            .where('userid', userId)
+            .then(rows => {
+                console.log(rows, 'PLCASE????????')
+                return rows;
+            })
     },
 
     getPlaceByUserAndId: (knex, user_id, place_id) => {
+        console.log(user_id, place_id ,'SERVICE')
         return knex
             .from('place AS pl')
             .select('*')

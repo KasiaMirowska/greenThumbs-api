@@ -1,6 +1,6 @@
 
 
-makeTestUsers = () => {
+const makeTestUsers = () => {
     return [
         {
             id: 1,
@@ -55,8 +55,8 @@ const makeTestPlaces = () => {
         },
         {
             id: 3,
-            yelp_id: 'aB1c',
-            name: 'first place',
+            yelp_id: 'aB3c',
+            name: 'third place',
             img_url: 'image3',
             url: 'yelpUrl',
             yelp_rating: 4,
@@ -107,7 +107,7 @@ const makeTestReviews = () => {
     ]
 }
 
-const makeTestTumbText =()=> {
+const makeTestThumbText =()=> {
     return [
         {
             id: 1,
@@ -168,7 +168,7 @@ const makeTestThumbChecked = () => {
     ]
 }
 
-makeUserPlaces = () => {
+const makeTestUserPlaces = () => {
     return [
         {
             userid:1,
@@ -198,18 +198,23 @@ makeUserPlaces = () => {
 }
 
 
-makeTestData = () => {
+const makeTestData = () => {
     testUsers = makeTestUsers();
     testPlaces = makeTestPlaces();
     testReviews = makeTestReviews();
-    testThumbText = makeTestTumbText();
+    testThumbText = makeTestThumbText();
     testThumbChecked = makeTestThumbChecked();
-    testUserPlaces = makeUserPlaces()
+    testUserPlaces = makeTestUserPlaces()
     return { testUsers, testPlaces, testReviews, testUserPlaces, testThumbText, testThumbChecked};
 }
 
 module.exports = {
-    makeTestData,
+  
     makeTestUsers,
     makeTestPlaces,
+    makeTestReviews,
+    makeTestThumbText,
+    makeTestThumbChecked,
+    makeTestUserPlaces,
+    makeTestData,
 }

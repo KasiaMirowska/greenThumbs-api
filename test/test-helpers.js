@@ -51,11 +51,16 @@ function seedGreenPlaces1(db, users, places, userPlaces, reviews, thumbText, thu
                 });
         });
 }
-function seedGreenPlaces2(db, users, places, userPlaces, reviews, thumbText, thumbChecked) {
-    const verifiedUsers = users.map(user => ({
-        ...user,
-        password: bcrypt.hashSync(user.password, 1)
-    }))
+function seedGreenPlaces2(db, users, places, reviews, userPlaces, thumbText, thumbChecked) {
+ 
+    const verifiedUsers = users.map(user => {
+        //console.log(user, 'USER IN VERIFING')
+        return ({
+            ...user,
+            password: bcrypt.hashSync(user.password, 1)
+        })
+    })
+    
     return db
         .into('users')
         .insert(verifiedUsers)
@@ -84,7 +89,10 @@ function seedGreenPlaces2(db, users, places, userPlaces, reviews, thumbText, thu
                 .into('thumbchecked')
                 .insert(thumbChecked)
                 .then(() => {
-                    console.log('db populated');
+                    // return db
+                    // .select('*').from('users','place','userplace','review','thumbtext','thumbchecked')
+                    // .then(users => console.log(users, 'ARE WE INSIDE DB??????'))
+                    console.log('db populated here////?????');
                 });
         });
 
@@ -94,17 +102,12 @@ function seedGreenPlaces2(db, users, places, userPlaces, reviews, thumbText, thu
 
 
 function makeExpectedPlaceReviews(db, user, place, userPlaces, reviews, checkedThumbs) {
-    console.log('wtf?????', user, place, reviews)
+  
     let filteredByUser = reviews.filter(rev => rev.userid === user.id);
-    console.log(filteredByUser, '2222')
     let filteredByPlace = filteredByUser.filter(rev => rev.place_id === place.id);
-
-    console.log(filteredByPlace[0], '33333333')
     let filteredReview = filteredByPlace[0];
-    console.log(filteredReview.id, 'REALLY??????')
 
-    let filteredThumbs = checkedThumbs.filter(e => e.review_id === filteredReview.id)
-    console.log(filteredReview.id, filteredThumbs, 'Final???????')
+    let filteredThumbs = checkedThumbs.filter(e => e.review_id === filteredReview.id);
 
     let reviewCheckedThumbs = {}
 
@@ -131,7 +134,7 @@ function makeExpectedPlaceReviews(db, user, place, userPlaces, reviews, checkedT
         category: filteredReview.place_category,
         checkedthumbs: Object.keys(reviewCheckedThumbs)
     }
-    console.log(expectedPlace, 'IS IT HERE???????!!!!!!!!!')
+   
     return expectedPlace;
 }
 
@@ -144,7 +147,7 @@ function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
         subject: user.username,
         algorithm: 'HS256'
     })
-    console.log(token)
+    console.log(token, "in TESTING")
     return `Bearer ${token}`
 }
 
