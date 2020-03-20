@@ -2,7 +2,7 @@ const AuthService = require('../auth/auth-service');
 
 function requireAuth(req,res,next) {
     const authToken = req.get('Authorization') || '';
-
+    
     let bearerToken;
     if(!authToken.toLowerCase().startsWith('bearer')) {
         return res.status(401).json({error: {message: 'Mising bearer token'}})
@@ -13,10 +13,8 @@ function requireAuth(req,res,next) {
     try{
         const payload = AuthService.verifyJWT(bearerToken)
         const knexInstance = req.app.get('db');
-        
         AuthService.getUserWithUserName(knexInstance, payload.sub)
         .then(user => {
-            console.log(user, 'DO I EXIST????', payload)
             if(!user) {
                 return res.status(401).json({error: {message: 'Unauthorized request'}})
             }

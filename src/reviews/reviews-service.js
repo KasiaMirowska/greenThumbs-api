@@ -93,7 +93,6 @@ const ReviewsService = {
                 }
             )
             .then(rows => {
-                console.log(rows, "<<<<<<<REVIEW BY ID>>>>>>")
                 return rows
             })
 
@@ -129,8 +128,10 @@ const ReviewsService = {
     },
 
     updateThumbChecked: (knex, userId, placeId, updatedList) => {
+        console.log(updatedList, 'IN THUMB SERVICE')
         return knex('thumbchecked').where({ userid: userId, place_id: placeId }).delete()
             .then((deletedThumb) => {
+                console.log(deletedThumb, 'DELETED?')
                 return knex.into('thumbchecked').where({ userid: userId, place_id: placeId }).insert(updatedList).returning('*')
             })
             .then(rows => {

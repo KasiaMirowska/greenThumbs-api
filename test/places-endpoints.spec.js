@@ -31,11 +31,11 @@ describe('places endpoints', function () {
 
         context('given reviewed places in db', () => {
             beforeEach('insert places', () => {
-                return helpers.seedGreenPlaces1(db, testUsers, testPlaces, testReviews, testUserPlaces, testThumbText, testThumbChecked)
+                return helpers.seedGreenPlaces1(db, testUsers, testPlaces, testUserPlaces, testReviews, testThumbText, testThumbChecked)
             });
 
             it('responds with 200 and places array', () => {
-                const expectedPlace = helpers.makeExpectedPlaceReviews(db, testUsers[0], testPlaces[0], testUserPlaces, testReviews, testThumbChecked)
+                const expectedPlace = helpers.makeExpectedPlaceReviews(db, testUsers[0], testPlaces[0], testUserPlaces, testReviews, testThumbChecked, testThumbText)
                 return supertest(app)
                     .get('/api/')
                     .expect(200)
@@ -79,7 +79,7 @@ describe('places endpoints', function () {
             })
 
             it('returns 200', () => {
-                const expectedPlace = helpers.makeExpectedPlaceReviews(db, testUsers[0], testPlaces[0], testUserPlaces, testReviews, testThumbChecked)
+                const expectedPlace = helpers.makeExpectedPlaceReviews(db, testUsers[0], testPlaces[0], testUserPlaces, testReviews, testThumbChecked, testThumbText)
                 return supertest(app)
                     .get('/api/user')
                     .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
@@ -114,24 +114,35 @@ describe('places endpoints', function () {
         });
 
         context('given place exists in db', () => {
-            before('populate the db', () => {
+            beforeEach('populate the db', () => {
                 return helpers.seedGreenPlaces2(db, testUsers, testPlaces, testReviews, testUserPlaces, testThumbText, testThumbChecked)
             })
             it('returns selected place', () => {
                 const placeId = 1;
-                const expectedPlace = helpers.makeExpectedPlaceReviews(db, testUsers[0], testPlaces[0], testUserPlaces, testReviews, testThumbChecked)
+                const expectedPlace = helpers.makeExpectedPlaceReviews(db, testUsers[0], testPlaces[0], testUserPlaces, testReviews, testThumbChecked, testThumbText);
                 return supertest(app)
                     .get(`/api/place/${placeId}`)
                     .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
-                    .expect(200, expectedPlace)
-            })
-        })
+                    .expect(200, expectedPlace);
+            });
+        });
     });
 
     describe('POST /api/:place_id/review', () => {
         context('db has no saved place', () => {
-            beforeEach('insert data', () => {
-                return helpers.seedGreenPlaces2(db, testUsers, testPlaces, testReviews, testUserPlaces, testThumbText, testThumbChecked)
+            beforeEach('insert users', () => {
+                const verifiedUsers = testUsers.map(user => ({
+                    ...user,
+                    password: bcrypt.hashSync(user.password, 1)
+                }))
+                return db
+                    .into('users')
+                    .insert(verifiedUsers)
+                    .then(() => {
+                        return db
+                        .into('thumbtext')
+                        .insert(testThumbText)
+                    })
             })
             it('inserts a new place with new review and checked thumbs', () => {
                 const user = testUsers[2];
@@ -140,7 +151,7 @@ describe('places endpoints', function () {
                     name: 'test place',
                     img_url: 'image1',
                     url: 'yelpUrl4',
-                    yelp_rating: 4.5,
+                    yelp_rating: 5,
                     location_str: '1 street',
                     location_city: 'cityFirst',
                     location_zip: '012345',
@@ -164,14 +175,13 @@ describe('places endpoints', function () {
                 const testThumbsChecked = [1, 2, 3];
 
                 const {
-                    id, yelp_id, name, img_url, url, yelp_rating,
+                     yelp_id, name, img_url, url, yelp_rating,
                     location_str, location_city, location_zip,
                     location_st, display_phone, green_reviews_count,
                 } = place;
 
 
                 const testNewPlaceReq = {
-                    id,
                     yelp_id,
                     name,
                     img_url,
@@ -188,32 +198,34 @@ describe('places endpoints', function () {
                     review: testNewReview.review,
                     checkedThumbs: testThumbsChecked
                 }
+                
                 return supertest(app)
-                    .post(`/api/${newPlace.yelp_id}/review`)
+                    .post(`/api/${place.yelp_id}/review`)
                     .set('Authorization', helpers.makeAuthHeader(user))
                     .send(testNewPlaceReq)
                     .expect(201)
                     .expect(res => {
-                        console.log(res.body[0])
-                        expect(res.body.newGreenPlace).to.have.property('id');
-                        expect(res.body.newGreenPlace.yelp_id).to.eql(testNewPlaceReq.yelp_id);
-                        expect(res.body.newGreenPlace.name).to.eql(testNewPlaceReq.name);
-                        expect(res.body.newGreenPlace.img_url).to.eql(testNewPlaceReq.img_url);
-                        expect(res.body.newGreenPlace.url).to.elq(testNewPlaceReq.url);
-                        expect(res.body.newGreenPlace.yelp_rating).to.elq(testNewPlaceReq.yelp_rating);
-                        expect(res.body.newGreenPlace.location_str).to.elq(testNewPlaceReq.location_str);
-                        expect(res.body.newGreenPlace.location_city).to.elq(testNewPlaceReq.location_city);
-                        expect(res.body.newGreenPlace.location_st).to.elq(testNewPlaceReq.location_st);
-                        expect(res.body.newGreenPlace.display_phone).to.elq(testNewPlaceReq.display_phone);
-                        expect(res.body.newGreenPlace.green_reviews_count).to.elq(testNewPlaceReq.green_reviews_count);
+                        console.log(res.body)
+                        expect(res.body.savedPlace).to.have.property('id');
+                        expect(res.body.savedPlace.yelp_id).to.eql(testNewPlaceReq.yelp_id);
+                        expect(res.body.savedPlace.name).to.eql(testNewPlaceReq.name);
+                        expect(res.body.savedPlace.img_url).to.eql(testNewPlaceReq.img_url);
+                        expect(res.body.savedPlace.url).to.eql(testNewPlaceReq.url);
+                        expect(res.body.savedPlace.yelp_rating).to.eql(testNewPlaceReq.yelp_rating);
+                        expect(res.body.savedPlace.location_str).to.eql(testNewPlaceReq.location_str);
+                        expect(res.body.savedPlace.location_city).to.eql(testNewPlaceReq.location_city);
+                        expect(res.body.savedPlace.location_st).to.eql(testNewPlaceReq.location_st);
+                        expect(res.body.savedPlace.display_phone).to.eql(testNewPlaceReq.display_phone);
+                        expect(res.body.savedPlace.green_reviews_count).to.eql(testNewPlaceReq.green_reviews_count);
+                        
+                        
+                        expect(res.body.savedReview).to.have.property('id');
+                        expect(res.body.savedReview.userid).to.eql(testNewPlaceReq.userid);
+                        expect(res.body.savedReview.place_id).to.eql(res.body.savedPlace.id);
+                        expect(res.body.savedReview.place_category).to.eql(testNewPlaceReq.category);
+                        expect(res.body.savedReview.review).to.eql(testNewPlaceReq.review);
 
-                        expect(res.body[0].newReview).to.have.property('id');
-                        expect(res.body[0].newReview.userid).to.eql(testNewPlaceReq.userid);
-                        expect(res.body[0].newReview.place_id).to.eql(testNewPlaceReq.id);
-                        expect(res.body[0].newReview.place_category).to.eql(testNewPlaceReq.category);
-                        expect(res.body[0].newReview.review).to.eql(testNewPlaceReq.review);
-
-                        expect(res.body[0].checkedThumbs).to.eql(testNewPlaceReq.checkedThumbs)
+                        expect(res.body.newSavedThumbs).to.eql(testNewPlaceReq.checkedThumbs)
                     })
                 //this is in response body that router sents : newReview, checkedThumbs 
             })
@@ -223,8 +235,25 @@ describe('places endpoints', function () {
 
 
     context('given greenDB already has that saved place', () => {
-        beforeEach('insert data', () => {
-            return helpers.seedGreenPlaces2(db, testUsers, testPlaces, testReviews, testUserPlaces, testThumbText, testThumbChecked)
+
+        beforeEach('insert users', () => {
+            const verifiedUsers = testUsers.map(user => ({
+                ...user,
+                password: bcrypt.hashSync(user.password, 1)
+            }))
+            return db
+                .into('users')
+                .insert(verifiedUsers)
+                .then(() => {
+                    return db
+                    .into('place')
+                    .insert(testPlaces)
+                })
+                .then(() => {
+                    return db
+                    .into('thumbtext')
+                    .insert(testThumbText)
+                })
         })
         it('inserts new review to a saved place in db', () => {
             const user = testUsers[2];
@@ -276,36 +305,44 @@ describe('places endpoints', function () {
                 .send(testNewPlaceReq)
                 .expect(201)
                 .expect(res => {
-                    console.log(res.body[0])
-                    expect(res.body.newGreenPlace).to.have.property('id');
-                    expect(res.body.newGreenPlace.yelp_id).to.eql(testNewPlaceReq.yelp_id);
-                    expect(res.body.newGreenPlace.name).to.eql(testNewPlaceReq.name);
-                    expect(res.body.newGreenPlace.img_url).to.eql(testNewPlaceReq.img_url);
-                    expect(res.body.newGreenPlace.url).to.elq(testNewPlaceReq.url);
-                    expect(res.body.newGreenPlace.yelp_rating).to.elq(testNewPlaceReq.yelp_rating);
-                    expect(res.body.newGreenPlace.location_str).to.elq(testNewPlaceReq.location_str);
-                    expect(res.body.newGreenPlace.location_city).to.elq(testNewPlaceReq.location_city);
-                    expect(res.body.newGreenPlace.location_st).to.elq(testNewPlaceReq.location_st);
-                    expect(res.body.newGreenPlace.display_phone).to.elq(testNewPlaceReq.display_phone);
-                    expect(res.body.newGreenPlace.green_reviews_count).to.elq(testNewPlaceReq.green_reviews_count);
+                    console.log(res.body, "BODY")
+           
 
-                    expect(res.body[0].newReview).to.have.property('id');
-                    expect(res.body[0].newReview.userid).to.eql(testNewPlaceReq.userid);
-                    expect(res.body[0].newReview.place_id).to.eql(testNewPlaceReq.id);
-                    expect(res.body[0].newReview.place_category).to.eql(testNewPlaceReq.category);
-                    expect(res.body[0].newReview.review).to.eql(testNewPlaceReq.review);
+                    expect(res.body.savedReview).to.have.property('id');
+                    // expect(res.body.newReview.userid).to.eql(testNewPlaceReq.userid);
+                    // expect(res.body.newReview.place_id).to.eql(testNewPlaceReq.id);
+                    // expect(res.body.newReview.place_category).to.eql(testNewPlaceReq.category);
+                    // expect(res.body.newReview.review).to.eql(testNewPlaceReq.review);
 
-                    expect(res.body[0].checkedThumbs).to.eql(testNewPlaceReq.checkedThumbs)
+                    expect(res.body.savedThumbs).to.eql(testNewPlaceReq.checkedThumbs)
                 })
             //this is in response body that router sents : newReview, checkedThumbs 
+      
         })
     })
 
-    describe.only('PATCH /api/edit/:green_place_id', () => {
+    describe('PATCH /api/edit/:green_place_id', () => {
         
-            beforeEach('insert data', () => {
-                return helpers.seedGreenPlaces2(db, testUsers, testPlaces, testReviews, testUserPlaces, testThumbText, testThumbChecked)
-            }) 
+           
+        beforeEach('insert users', () => {
+            const verifiedUsers = testUsers.map(user => ({
+                ...user,
+                password: bcrypt.hashSync(user.password, 1)
+            }))
+            return db
+                .into('users')
+                .insert(verifiedUsers)
+                .then(() => {
+                    return db
+                    .into('place')
+                    .insert(testPlaces)
+                })
+                .then(() => {
+                    return db
+                    .into('thumbtext')
+                    .insert(testThumbText)
+                })
+        })
 
             it('created new review and checked thumbs for the place', () => {
                 const user = testUsers[2];
@@ -343,7 +380,7 @@ describe('places endpoints', function () {
                     reviewed_place_id: place.id,
                     green_reviews_count,
                     category: testUpdatedReview.place_category,
-                    review: [testUpdatedReview.review,],
+                    review: testUpdatedReview.review,
                     checkedThumbs: testThumbsChecked
                 }
                 return supertest(app)
@@ -352,17 +389,30 @@ describe('places endpoints', function () {
                 .send(testUpdatedPlaceReq)
                 .expect(201)
                 .expect(res => {
-                    console.log(res.body[0]);
-                    expect(res.body[0].updatedReview).to.have.property('id');
-                    expect(res.body[0].updatedReview.userid).to.eql(testUpdatedPlaceReq.userid);
-                    expect(res.body[0].updatedReview.place_id).to.eql(testUpdatedPlaceReq.id);
-                    expect(res.body[0].updatedReview.place_category).to.eql(testUpdatedPlaceReq.category);
-                    expect(res.body[0].updatedReview.review).to.eql(testUpdatedPlaceReq.review);
+                    console.log(res.body);
+                    expect(res.body.savedReview).to.have.property('id');
+                    expect(res.body.savedReview.userid).to.eql(testUpdatedPlaceReq.userid);
+                    expect(res.body.savedReview.place_id).to.eql(testUpdatedPlaceReq.id);
+                    expect(res.body.savedReview.place_category).to.eql(testUpdatedPlaceReq.category);
+                    expect(res.body.savedReview.review).to.eql(testUpdatedPlaceReq.review);
 
-                    expect(res.body[0].checkedThumbs).to.eql(testUpdatedPlaceReq.checkedThumbs)
+                    expect(res.body.updatedThumbs).to.eql(testUpdatedPlaceReq.checkedThumbs)
                 })
             })
         
+    })
+    describe('DELETE /api/place/delete/:green_place_id', () => {
+        beforeEach('insert data', () => {
+            return helpers.seedGreenPlaces2(db, testUsers, testPlaces, testReviews, testUserPlaces, testThumbText, testThumbChecked)
+        })
+        it('deletes selected place review and thumbs', () => {
+            const user = testUsers[0];
+            const placeToRemove = testPlaces[0].id;
+            return supertest(app)
+            .delete(`/api/place/delete/${placeToRemove}`)
+            .set('Authorization', helpers.makeAuthHeader(user))
+            .expect(204)
+        })
     })
 })
 

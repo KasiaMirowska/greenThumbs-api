@@ -26,7 +26,7 @@ authRouter
                 console.log(loginUser.password, dbUser.password)
                 return res.status(400).json({error: {message: 'Incorrect user_name or password'}})
             }
-
+        
             const subject = dbUser.username;
             const payload = { userId : dbUser.id };
             return res.json({authToken: AuthService.createJWT(subject, payload)})

@@ -14,7 +14,6 @@ const PlacesService = {
             )
             .where('userid', userId)
             .then(rows => {
-                console.log(rows, 'PLCASE????????')
                 return rows;
             })
     },
@@ -30,9 +29,12 @@ const PlacesService = {
             )
             .where({ 'usrpl.userid': user_id, 'pl.id': place_id, }).first()
             .then((rows) => {
-                console.log(rows, '1111111111ROWS OF PLACE BY USER ID')
-                return rows;
+                if(rows) {
+                let num = Number(rows.yelp_rating)
+                return {...rows, yelp_rating: num}
+                }
             })
+           
     },
 
     getPlaceById: (knex, place_id) => {
@@ -68,10 +70,19 @@ const PlacesService = {
             })
     },
 
+    getPlaceByYelpId: (knex, userId, yelpId) => {
+        return knex.from('place').select('*').where({'yelp_id': yelpId, userid: userId}).first()
+    },
+
     insertNewPlace: (knex, newPlace) => {
+        console.log(newPlace, 'PLACE SERIVDE')
         return knex.into('place').insert(newPlace).returning('*')
             .then((rows) => {
-                return rows[0]
+                let num = Number(rows[0].yelp_rating)
+                return {...rows[0], yelp_rating: num}
+            })
+            .catch(err => {
+                console.log(err)
             })
     },
 

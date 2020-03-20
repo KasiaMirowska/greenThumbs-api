@@ -151,51 +151,48 @@ placesRouter
 placesRouter //gets by id reviewed place with full info
     .route('/api/place/:place_id')
     .all(requireAuth)
-    .all((req, res, next) => {
-        const knexInstance = req.app.get('db');
-        const user_id = req.user.id
-        const place_id = Number(req.params.place_id);
+    .all(async (req, res, next) => {
+        try {
 
-        PlacesService.getPlaceByUserAndId(knexInstance, user_id, place_id)
-            .then(place => {
-                console.log(place, user_id, place_id, 'IN ROUTER GET place BY ID')
-                if (!place) {
-                    console.log('do i come her and stop?')
-                    return res.status(400).json({ error: { message: `User with id ${user_id} did not review place with id ${place_id}` } })
-                }
-                res.place = place
-                
-                ReviewsService.getReviewByPlaceId(knexInstance, user_id, place_id)
-                .then(reviews => {
-                    console.log(reviews, user_id, place_id, 'IN ROUTER GET REV BY PL ID')
-                    if (reviews) {
-                        let reviewText = {};
-                        let reviewDate = {};
-                        let reviewCheckedThumbs = {}
-    
-                        reviews.forEach(rev => {
-                            reviewText[rev.review] = true;
-                            reviewDate[rev.date] = true;
-                            reviewCheckedThumbs[rev.description] = true;
-                        });
-    
-                        res.fullReviewedPlace = {
-                            ...res.place,
-                            review: Object.keys(reviewText),
-                            reviewDate: Object.keys(reviewDate),
-                            checkedThumbs: Object.keys(reviewCheckedThumbs)
-                        };
-                    };
-                    next()
-                })
-                .catch(next)
-    
-            })
-            .catch(next)
-       
+            const knexInstance = req.app.get('db');
+            const user_id = req.user.id
+            const place_id = Number(req.params.place_id);
+
+            let foundPlace = await PlacesService.getPlaceByUserAndId(knexInstance, user_id, place_id)
+            if (!foundPlace) {
+                return res.status(400).json({ error: { message: `User with id ${user_id} did not review place with id ${place_id}` } });
+            }
+            
+            res.place = foundPlace;
+
+            let foundReviews = await ReviewsService.getReviewByPlaceId(knexInstance, user_id, place_id);
+            
+            if (foundReviews) {
+                let reviewText = {};
+                let reviewCheckedThumbs = {};
+                let reviewCategory = {};
+
+                foundReviews.forEach(rev => {
+                    reviewText[rev.review] = true;
+                    reviewCheckedThumbs[rev.description] = true;
+                    reviewCategory[rev.place_category] = true;
+                });
+                res.fullReviewedPlace = {
+                    ...res.place,
+                    review: Object.keys(reviewText),
+                    checkedThumbs: Object.keys(reviewCheckedThumbs),
+                    category: Object.keys(reviewCategory),
+                };
+            };
+            next();
+
+        } catch (err) {
+            next(err);
+        }
     })
+
     .get((req, res, next) => {
-        return res.status(200).json(res.fullReviewedPlace)
+        return res.status(200).json(res.fullReviewedPlace);
     });
 
 
