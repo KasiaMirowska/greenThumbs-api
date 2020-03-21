@@ -11,10 +11,13 @@ const authRouter = require('./auth/auth-router');
 const userRouter = require('./users/user-router');
 const placesRouter = require('./places/places-router');
 const reviewsRouter = require('./reviews/reviews-router');
+const {CLIENT_ORIGIN} = require('./config');
 
 app.use(morgan(morganOption));
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+    origin: CLIENT_ORIGIN
+}));
 
 app.use(proxyRouter);
 app.use(authRouter);
