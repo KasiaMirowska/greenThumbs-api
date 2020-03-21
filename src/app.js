@@ -15,15 +15,14 @@ const {CLIENT_ORIGIN} = require('./config');
 
 app.use(morgan(morganOption));
 app.use(helmet());
-app.use(cors({
-    origin: CLIENT_ORIGIN
-}));
+app.use(cors());
 
 app.use(proxyRouter);
 app.use(authRouter);
 app.use(userRouter);
 app.use(placesRouter);
 app.use(reviewsRouter);
+
 
 app.get('/', (req, res) => {
     res.send('hello from green-thumbs-up!')
