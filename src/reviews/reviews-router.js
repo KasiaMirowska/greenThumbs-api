@@ -16,12 +16,13 @@ reviewsRouter
             const knexInstance = req.app.get('db');
             const user_id = req.user.id;
             const yelpId = req.params.place_id;
-            // /console.log('IN THE REVIEWS ROUTER',req.body, 'BODY THAT ROUTER RECEIVES')
+            console.log('IN THE REVIEWS ROUTER',req.body, 'BODY THAT ROUTER RECEIVES')
             const { yelp_id, name, img_url, url, yelp_rating, location_str, location_city, location_zip, location_st, display_phone, green_reviews_count, category, review, checkedThumbs } = req.body;
             
             for (const [key, value] of Object.entries(req.body)) {
-                if (value === null) {
-                    return res.status(400).send({ error: { message: `Missing ${key}` } });
+                if (value === null || value.length === 0 || value === '') {
+                    console.log(req.body, 'WHY DO I NOT RETURN 400')
+                    return res.status(400).send({ error: { message: `Missing fields` } });
                 }
             }
             const existingReviewByUser = await PlacesService.getUserInUserPlace(knexInstance, user_id, yelpId)
@@ -47,13 +48,13 @@ reviewsRouter
                 }
 
                 let savedPlace = await PlacesService.insertNewPlace(knexInstance, newGreenPlace)
-                console.log(savedPlace,'SSSSSSSSSSS', )
+                console.log(savedPlace,'SSSSSSSSSSS', newGreenPlace )
                 let newUserPlace = {
                     userid: user_id,
                     reviewed_place_id: savedPlace.id
                 }
                 let savedUserPlace = await PlacesService.insertNewUserPlace(knexInstance, newUserPlace)
-                console.log(savedUserPlace, savedPlace)
+                console.log(savedUserPlace)
                
                 let newReview = {
                     userid: user_id,
@@ -130,22 +131,33 @@ reviewsRouter
 reviewsRouter //updating a reviewed place
     .route('/api/edit/:green_place_id')
     .all(requireAuth)
-    .all(jsonBodyParser, async (req, res, next) => {
+    .patch(jsonBodyParser, async (req, res, next) => {
         try {
             const knexInstance = req.app.get('db');
             const green_place_id = Number(req.params.green_place_id);
             const user_id = req.user.id;
-            const {
+            let {
                 yelp_id, name, img, url, yelp_rating,
                 location_str, location_city, location_zip,
                 location_st, display_phone,
                 green_reviews_count, category, review, checkedThumbs
             } = req.body;
-            console.log(user_id, green_place_id, 'AM I HERE?????')
 
+            // if no category return error
+
+            console.log( 'AM I HERE?????', category)
+            // for (const [key, value] of Object.entries(req.body)) {
+            //     if (value === null) {
+            //         console.log(key, 'key')
+            //         console.log(req.body, 'WHY DO I NOT RETURN 400')
+            //         return res.status(400).send({ error: { message: `Missing fields` } });
+            //     }
+            // }
+        
             console.log(req.body, 'RECEIVED BODY IN UPDATE')
             // in future should call proxy here to get place's info again in order to ensure that if the place's address or other info was not changed in yelp it gets updated in green thumbs up as well.....
-            const existingReview = await ReviewsService.getReviewByPlaceId(knexInstance, user_id, green_place_id)
+            const existingReview = await ReviewsService.getReviewByPlaceId(knexInstance, user_id, green_place_id);
+            console.log(existingReview, 'EXISTING_REVIEW');
             if (existingReview.length === 0) {
                 let newReview = {
                     userid: user_id,
@@ -177,19 +189,26 @@ reviewsRouter //updating a reviewed place
             
             } else {
                 
-                
+                if (!review) {
+                    review = ' ';
+                }
+                if (Array.isArray(review)) {
+                    review = review[0]
+                }
+                console.log(green_place_id, '<<>>>', category);
+
                 const updatedReviewInfo = {
                     userid: user_id,
                     place_id: green_place_id,
                     place_category: category,
                     date: new Date(),
-                    review,
+                    review: review,
                 };
 
                 const updatedReview = await ReviewsService.updateReview(knexInstance, user_id, green_place_id, updatedReviewInfo);
                 console.log(updatedReview, 'UPDATE???', updatedReview.id)
                
-                let thumbArr= checkedThumbs.map(el => {
+                let thumbArr = checkedThumbs.map(el => {
                     let newCheckedThumb = {
                         userid: user_id,
                         place_id: green_place_id,

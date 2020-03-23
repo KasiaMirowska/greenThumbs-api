@@ -99,10 +99,10 @@ const ReviewsService = {
 
     },
     getReviewCountPerPlace: (knex, yelp_id) => {
-        return knex.from('review').select('*').where({yelp_id: yelp_id})
-        .then(rows => {
-            return rows;
-        });
+        return knex.from('review').select('*').where({ yelp_id: yelp_id })
+            .then(rows => {
+                return rows;
+            });
     },
 
 
@@ -121,8 +121,12 @@ const ReviewsService = {
     },
 
     updateReview: (knex, userId, placeId, updatedFields) => {
-        return knex('review').where({ userid: userId, place_id: placeId }).update(updatedFields).returning('*')
+        return knex('review').where({ userid: userId, place_id: placeId }).delete()
+            .then(() => {
+                return knex('review').where({ userid: userId, place_id: placeId }).insert(updatedFields).returning('*')
+            })
             .then(rows => {
+                console.log(updatedFields, 'RRRRRRRRRRRRRRRR', rows[0])
                 return rows[0];
             });
     },
@@ -136,7 +140,7 @@ const ReviewsService = {
             })
             .then(rows => {
                 return rows;
-        });//insert can insert one obj or an array /// dont nest THENS!
+            });//insert can insert one obj or an array /// dont nest THENS!
     },
 
     deleteReview: (knex, userId, placeToRemove) => {

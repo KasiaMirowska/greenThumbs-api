@@ -166,7 +166,7 @@ placesRouter //gets by id reviewed place with full info
             res.place = foundPlace;
 
             let foundReviews = await ReviewsService.getReviewByPlaceId(knexInstance, user_id, place_id);
-            
+            console.log(foundReviews, 'FOUND REVIEWWS');
             if (foundReviews) {
                 let reviewText = {};
                 let reviewCheckedThumbs = {};
@@ -179,11 +179,12 @@ placesRouter //gets by id reviewed place with full info
                 });
                 res.fullReviewedPlace = {
                     ...res.place,
-                    review: Object.keys(reviewText),
+                    review: Object.keys(reviewText)[0] || '',
                     checkedThumbs: Object.keys(reviewCheckedThumbs),
-                    category: Object.keys(reviewCategory),
+                    category: Object.keys(reviewCategory)[0] || '',
                 };
             };
+            console.log(res.fullReviewedPlace, 'FULL REVIEWED PLACE');
             next();
 
         } catch (err) {
