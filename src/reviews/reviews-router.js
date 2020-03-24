@@ -114,6 +114,7 @@ reviewsRouter //updating a reviewed place
     .all(requireAuth)
     .patch(jsonBodyParser, async (req, res, next) => {
         try {
+            console.log('hhhhhhhhhh')
             const knexInstance = req.app.get('db');
             const green_place_id = Number(req.params.green_place_id);
             const user_id = req.user.id;

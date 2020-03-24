@@ -134,8 +134,8 @@ function makeExpectedPlaceReviews(db, user, place, userPlaces, reviews, checkedT
         userid: user.id,
         green_reviews_count: place.green_reviews_count,
         reviewed_place_id: place.id,
-        review: [filteredReview.review,],
-        category: [filteredReview.place_category,],
+        review: filteredReview.review,
+        category: filteredReview.place_category,
         checkedThumbs: filteredThumbsDescriptionText,
     };
 

@@ -6,6 +6,7 @@ A place where you can create a positive impact on local restaurant industry. Sea
 
 ## WHY MAKE THIS APP?
 
+To try create a positive change to a globally overwhelming problem of trash. An avarage American orders takeout at least 3 times a week. That food is packaged for about 30min to an hour in a container that will stay in a landfill for another 500 years. Nothing gets fixed over night and sustainable packaging options are twice as expensive which makes it difficult for restaurant owners to pick that option over already slim profit margins. I believe if there was a platform where sustainable practices are exposed and commented upon, it could create a new 'standard' for all of us to follow when choosing a place to eat. This app is a humble sketch for a dream.
 
 
 |<img src='https://images-for-portfolio.s3.us-east-2.amazonaws.com/yoga+cap/home.png' width ='200' > | <img src='https://images-for-portfolio.s3.us-east-2.amazonaws.com/yoga+cap/flow-pick.png' width ='200' > | <img src='https://images-for-portfolio.s3.us-east-2.amazonaws.com/yoga+cap/flow-pose.png' width='200' > | <img src='https://images-for-portfolio.s3.us-east-2.amazonaws.com/yoga+cap/pose-card2.png' width='200' > |

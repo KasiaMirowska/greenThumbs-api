@@ -322,7 +322,6 @@ describe('places endpoints', function () {
     })
 
     describe('PATCH /api/edit/:green_place_id', () => {
-        
            
         beforeEach('insert users', () => {
             const verifiedUsers = testUsers.map(user => ({
@@ -384,7 +383,7 @@ describe('places endpoints', function () {
                     checkedThumbs: testThumbsChecked
                 }
                 return supertest(app)
-                .post(`/api/edit/${place.id}`)
+                .patch(`/api/edit/${place.id}`)
                 .set('Authorization', helpers.makeAuthHeader(user))
                 .send(testUpdatedPlaceReq)
                 .expect(201)
