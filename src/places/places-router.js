@@ -60,10 +60,10 @@ placesRouter // gets all green thumb reviewed places with full info
                         location_st,
                         display_phone,
                         green_reviews_count: reviews.length,
-                        review: Object.keys(reviewText),
+                        review: Object.keys(reviewText)[0] || '',
                         reviewDate: Object.keys(reviewDate),
-                        reviewCategory: Object.keys(reviewCategory),
-                        checkedThumbs: Object.keys(reviewCheckedThumbs)
+                        checkedThumbs: Object.keys(reviewCheckedThumbs),
+                        category: Object.keys(reviewCategory)[0] || '',
                     });
                 };
 
@@ -128,10 +128,10 @@ placesRouter
                             display_phone,
                             userid,
                             green_reviews_count,
-                            review: Object.keys(reviewText),
+                            review: Object.keys(reviewText)[0] || '',
                             reviewDate: Object.keys(reviewDate),
-                            reviewCategory: Object.keys(reviewCategory),
-                            checkedThumbs: Object.keys(reviewCheckedThumbs)
+                            checkedThumbs: Object.keys(reviewCheckedThumbs),
+                            category: Object.keys(reviewCategory)[0] || '',
                         });
                     };
                 };
@@ -162,7 +162,7 @@ placesRouter //gets by id reviewed place with full info
             if (!foundPlace) {
                 return res.status(400).json({ error: { message: `User with id ${user_id} did not review place with id ${place_id}` } });
             }
-            
+
             res.place = foundPlace;
 
             let foundReviews = await ReviewsService.getReviewByPlaceId(knexInstance, user_id, place_id);

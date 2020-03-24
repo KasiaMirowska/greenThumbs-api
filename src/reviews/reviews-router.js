@@ -78,7 +78,7 @@ reviewsRouter
                 .then(rows => {
                         return rows.map(el => el.thumb)
                 })
-
+                
                 return res.status(201).json({ savedPlace, savedReview, newSavedThumbs })
 
             } else {
@@ -145,7 +145,7 @@ reviewsRouter //updating a reviewed place
 
             // if no category return error
 
-            console.log( 'AM I HERE?????', category)
+            
             // for (const [key, value] of Object.entries(req.body)) {
             //     if (value === null) {
             //         console.log(key, 'key')
@@ -154,10 +154,10 @@ reviewsRouter //updating a reviewed place
             //     }
             // }
         
-            console.log(req.body, 'RECEIVED BODY IN UPDATE')
+            
             // in future should call proxy here to get place's info again in order to ensure that if the place's address or other info was not changed in yelp it gets updated in green thumbs up as well.....
             const existingReview = await ReviewsService.getReviewByPlaceId(knexInstance, user_id, green_place_id);
-            console.log(existingReview, 'EXISTING_REVIEW');
+           
             if (existingReview.length === 0) {
                 let newReview = {
                     userid: user_id,
@@ -167,7 +167,7 @@ reviewsRouter //updating a reviewed place
                 };
 
                 let savedReview = await ReviewsService.insertNewReview(knexInstance, newReview)
-                console.log(savedReview, 'IN UPDATE')
+               
                
                 let thumbArr= checkedThumbs.map(el => {
                     let newCheckedThumb = {
@@ -183,7 +183,7 @@ reviewsRouter //updating a reviewed place
                         return rows.map(el => el.thumb)
                 })
                 
-
+               
                 return res.status(201).json({ savedReview, updatedThumbs })
             
             
@@ -195,7 +195,7 @@ reviewsRouter //updating a reviewed place
                 if (Array.isArray(review)) {
                     review = review[0]
                 }
-                console.log(green_place_id, '<<>>>', category);
+            
 
                 const updatedReviewInfo = {
                     userid: user_id,
@@ -206,7 +206,7 @@ reviewsRouter //updating a reviewed place
                 };
 
                 const updatedReview = await ReviewsService.updateReview(knexInstance, user_id, green_place_id, updatedReviewInfo);
-                console.log(updatedReview, 'UPDATE???', updatedReview.id)
+    
                
                 let thumbArr = checkedThumbs.map(el => {
                     let newCheckedThumb = {
@@ -217,7 +217,7 @@ reviewsRouter //updating a reviewed place
                     }
                     return newCheckedThumb;
                 })
-                console.log(thumbArr, "ATHUMB ARR")
+            
                 let updatedThumbs = await ReviewsService.updateThumbChecked(knexInstance, user_id, green_place_id, thumbArr)
                 .then(rows => {
                     console.log(rows, 
