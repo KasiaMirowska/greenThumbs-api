@@ -4,7 +4,7 @@ const config = require('../config');
 
 const AuthService = {
     getUserWithUserName(knex, username) {
-        // knex('users').then(users => console.log('<<<<<<<<<<<<',users, 'KNEXXXX'))
+
         return knex.from('users')
         .where({username})
         .first()

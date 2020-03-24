@@ -126,16 +126,13 @@ const ReviewsService = {
                 return knex('review').where({ userid: userId, place_id: placeId }).insert(updatedFields).returning('*')
             })
             .then(rows => {
-                console.log(updatedFields, 'RRRRRRRRRRRRRRRR', rows[0])
                 return rows[0];
             });
     },
 
     updateThumbChecked: (knex, userId, placeId, updatedList) => {
-        console.log(updatedList, 'IN THUMB SERVICE')
         return knex('thumbchecked').where({ userid: userId, place_id: placeId }).delete()
             .then((deletedThumb) => {
-                console.log(deletedThumb, 'DELETED?')
                 return knex.into('thumbchecked').where({ userid: userId, place_id: placeId }).insert(updatedList).returning('*')
             })
             .then(rows => {
@@ -146,14 +143,12 @@ const ReviewsService = {
     deleteReview: (knex, userId, placeToRemove) => {
         return knex.from('review').select('*').where({ userid: userId, place_id: placeToRemove }).del()
             .then((rows) => {
-                console.log(rows, '???????.........222222222>>>>?????????')
             });
     },
 
     deleteCheckedThumb: (knex, userId, placeToRemove) => {
         return knex.from('thumbchecked').select('*').where({ userid: userId, place_id: placeToRemove }).del()
             .then((rows) => {
-                console.log(rows, '???????>>>>>>>?????????')
             });
     }
 

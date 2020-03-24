@@ -161,7 +161,6 @@ placesRouter //gets by id reviewed place with full info
             res.place = foundPlace;
 
             let foundReviews = await ReviewsService.getReviewByPlaceId(knexInstance, user_id, place_id);
-            console.log(foundReviews, 'FOUND REVIEWWS');
             if (foundReviews) {
                 let reviewText = {};
                 let reviewCheckedThumbs = {};

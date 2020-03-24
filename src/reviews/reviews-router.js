@@ -113,7 +113,6 @@ reviewsRouter //updating a reviewed place
     .all(requireAuth)
     .patch(jsonBodyParser, async (req, res, next) => {
         try {
-            console.log('hhhhhhhhhh')
             const knexInstance = req.app.get('db');
             const green_place_id = Number(req.params.green_place_id);
             const user_id = req.user.id;
@@ -127,8 +126,6 @@ reviewsRouter //updating a reviewed place
             
             for (const [key, value] of Object.entries(req.body)) {
                 if (value === null) {
-                    console.log(key, 'key')
-                    console.log(req.body, 'WHY DO I NOT RETURN 400')
                     return res.status(400).send({ error: { message: `Missing fields` } });
                 }
             }
@@ -199,8 +196,6 @@ reviewsRouter //updating a reviewed place
             
                 let updatedThumbs = await ReviewsService.updateThumbChecked(knexInstance, user_id, green_place_id, thumbArr)
                 .then(rows => {
-                    console.log(rows, 
-                        'UPDATED THUMBS ROWS')
                         return rows.map(el => el.thumb)
                 })
 

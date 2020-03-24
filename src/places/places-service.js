@@ -19,7 +19,6 @@ const PlacesService = {
     },
 
     getPlaceByUserAndId: (knex, user_id, place_id) => {
-        console.log(user_id, place_id ,'SERVICE')
         return knex
             .from('place AS pl')
             .select('*')
@@ -38,7 +37,6 @@ const PlacesService = {
     },
 
     getPlaceById: (knex, place_id) => {
-        console.log(place_id)
         return knex
             .from('place')
             .select('place.id', 'place.yelp_id', 'place.name')
@@ -65,7 +63,6 @@ const PlacesService = {
             .join('userplace', 'userplace.reviewed_place_id', 'place.id')
             .where({ userid: userId, yelp_id: yelp_id }).first()
             .then(rows => {
-                console.log(rows)
                 return rows;
             })
     },
@@ -75,14 +72,10 @@ const PlacesService = {
     },
 
     insertNewPlace: (knex, newPlace) => {
-        console.log(newPlace, 'PLACE SERIVDE')
         return knex.into('place').insert(newPlace).returning('*')
             .then((rows) => {
                 let num = Number(rows[0].yelp_rating)
                 return {...rows[0], yelp_rating: num}
-            })
-            .catch(err => {
-                console.log(err)
             })
     },
 
@@ -94,24 +87,18 @@ const PlacesService = {
     },
 
     updateGreenPlace: (knex, userId, placeId, updatedFields) => {
-        // console.log(updatedFields, "IN SERVICE", userId, 'l',placeId, "PL" )
         return knex.into('place').where({ id: placeId }).update(updatedFields)
-        // .then((rows) => {
-        //     console.log(rows, '>>>>>>?//rows after update?')
-        //     return rows; //update returns a number of updated rows
-        // })
+       
     },
 
     deleteUserPlace: (knex, userId, place_id) => {
         return knex.from('userplace').select('*').where({userid: userId, reviewed_place_id: place_id}).del()
         .then(rows => {
-            console.log(rows, 'DELETING USEPLCASE==')
             return rows
         })
     },
 
     deleteReviewedPlace: (knex, userId, place_id) => {
-        console.log(userId, place_id)
         return knex
             .from('place AS pl')
             .select('*')
@@ -120,9 +107,6 @@ const PlacesService = {
                 'pl.id'
             )
             .where({ id: place_id }).del()
-            .then((rows) => {
-                console.log(rows, '???????>>>3333333//////?????????')
-            })
     }
 }
 module.exports = PlacesService;

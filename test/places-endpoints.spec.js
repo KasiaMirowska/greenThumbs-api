@@ -40,7 +40,6 @@ describe('places endpoints', function () {
                     .get('/api/')
                     .expect(200)
                     .expect(res => {
-                        console.log(res.body[0])
                         res.body[0] === expectedPlace;
                     });
             });
@@ -204,7 +203,6 @@ describe('places endpoints', function () {
                     .send(testNewPlaceReq)
                     .expect(201)
                     .expect(res => {
-                        console.log(res.body)
                         expect(res.body.savedPlace).to.have.property('id');
                         expect(res.body.savedPlace.yelp_id).to.eql(testNewPlaceReq.yelp_id);
                         expect(res.body.savedPlace.name).to.eql(testNewPlaceReq.name);
@@ -256,7 +254,6 @@ describe('places endpoints', function () {
         it('inserts new review to a saved place in db', () => {
             const user = testUsers[2];
             const place = testPlaces[2];
-            console.log(place)
 
             const testNewUserPlace = {
                 userid: user.id,
@@ -302,9 +299,6 @@ describe('places endpoints', function () {
                 .send(testNewPlaceReq)
                 .expect(201)
                 .expect(res => {
-                    console.log(res.body, "BODY")
-           
-
                     expect(res.body.savedReview).to.have.property('id');
                     expect(res.body.savedReview.userid).to.eql(testNewPlaceReq.userid);
                     expect(res.body.savedReview.place_id).to.eql(place.id);
@@ -313,7 +307,6 @@ describe('places endpoints', function () {
 
                     expect(res.body.savedThumbs).to.eql(testNewPlaceReq.checkedThumbs)
                 })
-            //this is in response body that router sents : newReview, checkedThumbs 
       
         })
     })
@@ -385,7 +378,6 @@ describe('places endpoints', function () {
                 .send(testUpdatedPlaceReq)
                 .expect(201)
                 .expect(res => {
-                    console.log(res.body);
                     expect(res.body.savedReview).to.have.property('id');
                     expect(res.body.savedReview.userid).to.eql(testUpdatedPlaceReq.userid);
                     expect(res.body.savedReview.place_id).to.eql(testUpdatedPlaceReq.id);

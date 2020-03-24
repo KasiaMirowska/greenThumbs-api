@@ -60,7 +60,6 @@ function seedGreenPlaces1(db, users, places, userPlaces, reviews, thumbText, thu
 function seedGreenPlaces2(db, users, places, reviews, userPlaces, thumbText, thumbChecked) {
 
     const verifiedUsers = users.map(user => {
-        //console.log(user, 'USER IN VERIFING')
         return ({
             ...user,
             password: bcrypt.hashSync(user.password, 1)

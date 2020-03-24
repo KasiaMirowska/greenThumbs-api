@@ -2,7 +2,7 @@
 
 Check it out at [Green Thumb](https://green-thumbs-up.now.sh/).
 
-A place where you can create a positive impact on local restaurant industry. Search for a place to eat and let us know if that place adheres to enviroment friendly practices. Let's stand together for the Earth and influance business owners to take steps that will significatly lower their ecological footprint !
+A place where you can create a positive impact on local restaurant industry. Search for a place to eat and let us know if that place adheres to enviroment friendly practices. User can search local restaurant through connection to yelp and then create a green review on GREENthumbsUP that will save the restaurant to our database. User can also browse through our database of 'green' and Earth friendly places.
 
 ## WHY MAKE THIS APP?
 
