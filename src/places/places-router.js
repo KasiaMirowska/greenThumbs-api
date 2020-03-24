@@ -59,7 +59,6 @@ placesRouter
                         location_zip,
                         location_st,
                         display_phone,
-                        green_reviews_count: reviews.length,
                         review: Object.keys(reviewText)[0] || '',
                         reviewDate: Object.keys(reviewDate),
                         checkedThumbs: Object.keys(reviewCheckedThumbs),
@@ -108,7 +107,7 @@ placesRouter
                         const {
                             id, yelp_id, name, img_url, url, yelp_rating,
                             location_str, location_city, location_zip,
-                            location_st, display_phone, userid, green_reviews_count,
+                            location_st, display_phone, userid,
                         } = userPlaces[i];
 
                         res.userPlacesReviewed.push({
@@ -124,7 +123,6 @@ placesRouter
                             location_st,
                             display_phone,
                             userid,
-                            green_reviews_count,
                             review: Object.keys(reviewText)[0] || '',
                             reviewDate: Object.keys(reviewDate),
                             checkedThumbs: Object.keys(reviewCheckedThumbs),

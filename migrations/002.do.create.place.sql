@@ -11,8 +11,7 @@ CREATE TABLE place (
     location_city TEXT NOT NULL,
     location_zip TEXT NOT NULL,
     location_st TEXT NOT NULL,
-    display_phone TEXT,
-    green_reviews_count INTEGER
+    display_phone TEXT
 );
 
 

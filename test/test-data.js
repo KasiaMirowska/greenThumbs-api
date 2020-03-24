@@ -37,7 +37,6 @@ const makeTestPlaces = () => {
             location_zip: '012345',
             location_st: 'MA',
             display_phone: '(123) 345 5678',
-            green_reviews_count: 2,
         },
         {
             id: 2,
@@ -51,7 +50,6 @@ const makeTestPlaces = () => {
             location_zip: '012345',
             location_st: 'MA',
             display_phone: '(123) 345 5678',
-            green_reviews_count: 1,
         },
         {
             id: 3,
@@ -65,7 +63,6 @@ const makeTestPlaces = () => {
             location_zip: '012345',
             location_st: 'MA',
             display_phone: '(123) 345 5678',
-            green_reviews_count: 0,
         },
     ]
 }

@@ -16,7 +16,7 @@ reviewsRouter
             const knexInstance = req.app.get('db');
             const user_id = req.user.id;
             const yelpId = req.params.place_id;
-            const { yelp_id, name, img_url, url, yelp_rating, location_str, location_city, location_zip, location_st, display_phone, green_reviews_count, category, review, checkedThumbs } = req.body;
+            const { yelp_id, name, img_url, url, yelp_rating, location_str, location_city, location_zip, location_st, display_phone, category, review, checkedThumbs } = req.body;
             
             for (const [key, value] of Object.entries(req.body)) {
                 if (value === null || value.length === 0 || value === '') {
@@ -41,7 +41,6 @@ reviewsRouter
                     location_zip,
                     location_st,
                     display_phone,
-                    green_reviews_count,
                 };
                 let savedPlace = await PlacesService.insertNewPlace(knexInstance, newGreenPlace);
                 let newUserPlace = {
@@ -122,19 +121,17 @@ reviewsRouter //updating a reviewed place
                 yelp_id, name, img, url, yelp_rating,
                 location_str, location_city, location_zip,
                 location_st, display_phone,
-                green_reviews_count, category, review, checkedThumbs
+                 category, review, checkedThumbs
             } = req.body;
 
-            // if no category return error
-
             
-            // for (const [key, value] of Object.entries(req.body)) {
-            //     if (value === null) {
-            //         console.log(key, 'key')
-            //         console.log(req.body, 'WHY DO I NOT RETURN 400')
-            //         return res.status(400).send({ error: { message: `Missing fields` } });
-            //     }
-            // }
+            for (const [key, value] of Object.entries(req.body)) {
+                if (value === null) {
+                    console.log(key, 'key')
+                    console.log(req.body, 'WHY DO I NOT RETURN 400')
+                    return res.status(400).send({ error: { message: `Missing fields` } });
+                }
+            }
         
             
             // in future should call proxy here to get place's info again in order to ensure that if the place's address or other info was not changed in yelp it gets updated in green thumbs up as well.....

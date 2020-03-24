@@ -193,7 +193,6 @@ describe('places endpoints', function () {
                     location_st,
                     display_phone,
                     userid: user.id,
-                    green_reviews_count,
                     category: testNewReview.place_category,
                     review: testNewReview.review,
                     checkedThumbs: testThumbsChecked
@@ -216,7 +215,6 @@ describe('places endpoints', function () {
                         expect(res.body.savedPlace.location_city).to.eql(testNewPlaceReq.location_city);
                         expect(res.body.savedPlace.location_st).to.eql(testNewPlaceReq.location_st);
                         expect(res.body.savedPlace.display_phone).to.eql(testNewPlaceReq.display_phone);
-                        expect(res.body.savedPlace.green_reviews_count).to.eql(testNewPlaceReq.green_reviews_count);
                         
                         
                         expect(res.body.savedReview).to.have.property('id');
@@ -294,7 +292,6 @@ describe('places endpoints', function () {
                 location_st,
                 display_phone,
                 userid: user.id,
-                green_reviews_count,
                 category: testNewReview.place_category,
                 review: testNewReview.review,
                 checkedThumbs: testThumbsChecked
@@ -309,10 +306,10 @@ describe('places endpoints', function () {
            
 
                     expect(res.body.savedReview).to.have.property('id');
-                    // expect(res.body.newReview.userid).to.eql(testNewPlaceReq.userid);
-                    // expect(res.body.newReview.place_id).to.eql(testNewPlaceReq.id);
-                    // expect(res.body.newReview.place_category).to.eql(testNewPlaceReq.category);
-                    // expect(res.body.newReview.review).to.eql(testNewPlaceReq.review);
+                    expect(res.body.savedReview.userid).to.eql(testNewPlaceReq.userid);
+                    expect(res.body.savedReview.place_id).to.eql(place.id);
+                    expect(res.body.savedReview.place_category).to.eql(testNewPlaceReq.category);
+                    expect(res.body.savedReview.review).to.eql(testNewPlaceReq.review);
 
                     expect(res.body.savedThumbs).to.eql(testNewPlaceReq.checkedThumbs)
                 })
