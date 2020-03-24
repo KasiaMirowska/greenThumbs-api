@@ -5,20 +5,20 @@ const PlacesService = require('./places-service');
 const ReviewsService = require('../reviews/reviews-service');
 const { requireAuth } = require('../middleware/jwt-auth');
 
-placesRouter // gets all green thumb reviewed places with full info
+// gets all green thumb reviewed places with full info
+placesRouter
     .route('/api/')
     .all(async (req, res, next) => {
         try {
             res.placesReviewed = [];
-            const knexInstance = req.app.get('db')
+            const knexInstance = req.app.get('db');
             const places = await PlacesService.getAllGreenPlaces(knexInstance);
             const reviewedPlacesIds = await PlacesService.getAllUserPlaces(knexInstance);
-            //need to filter here so that client doesn't show places which reviews has been deleted/
             let filteredPlaces = [];
             places.filter(pl => {
                 reviewedPlacesIds.filter(id => {
                     if (pl.id === id) {
-                        filteredPlaces.push(pl)
+                        filteredPlaces.push(pl);
                     };
                 });
                 return filteredPlaces;
@@ -66,9 +66,7 @@ placesRouter // gets all green thumb reviewed places with full info
                         checkedThumbs: Object.keys(reviewCheckedThumbs)
                     });
                 };
-
             };
-
             next();
         } catch (err) {
             next(err);
@@ -77,7 +75,6 @@ placesRouter // gets all green thumb reviewed places with full info
     .get((req, res, next) => {
         res.status(200).json(res.placesReviewed)
     });
-
 
 placesRouter
     //gets green reviewed places by user with full info
@@ -144,7 +141,7 @@ placesRouter
         }
     })
     .get((req, res, next) => {
-        res.status(200).json(res.userPlacesReviewed)
+        res.status(200).json(res.userPlacesReviewed);
     });
 
 
@@ -184,9 +181,7 @@ placesRouter //gets by id reviewed place with full info
                     category: Object.keys(reviewCategory)[0] || '',
                 };
             };
-            console.log(res.fullReviewedPlace, 'FULL REVIEWED PLACE');
             next();
-
         } catch (err) {
             next(err);
         }

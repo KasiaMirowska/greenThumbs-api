@@ -23,7 +23,6 @@ app.use(userRouter);
 app.use(placesRouter);
 app.use(reviewsRouter);
 
-
 app.get('/', (req, res) => {
     res.send('hello from green-thumbs-up!')
 });

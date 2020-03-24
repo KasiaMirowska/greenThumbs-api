@@ -1,17 +1,17 @@
 const axios = require('axios')
 const express = require('express');
 const proxyRouter = express.Router();
-console.log(',,,,,HERE???')
+
 proxyRouter
 .get('/yelp/', (req, res) => {
     const { term, location } = req.query;
-    console.log(term, location, 'WORKING?????')
 
     const headers = {
         "Access-Control-Allow-Headers": "Content-Type, Accept",
         'Access-Control-Allow-Origin': "*",
         'Access-Control-Allow-Methods': "GET,HEAD"
     };
+    
     axios({
         method: 'get',
         url: `https://api.yelp.com/v3/businesses/search?term=${term}&location=${location}`,
